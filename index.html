@@ -42,6 +42,8 @@ body{
     );
 
     height:100vh;
+
+    padding-bottom:20px;
 }
 
 /* ===== FUNDO ===== */
@@ -96,31 +98,13 @@ body{
     overflow:hidden;
 }
 
-#menu::before{
-
-    content:"";
-
-    position:absolute;
-
-    width:500px;
-    height:500px;
-
-    border-radius:50%;
-
-    background:
-    rgba(255,255,255,0.08);
-
-    top:-180px;
-    right:-100px;
-}
-
 #menuGirl{
 
-    width:240px;
+    width:230px;
 
     z-index:5;
 
-    animation:floatGirl 3s ease-in-out infinite;
+    animation:floatGirl 4s ease-in-out infinite;
 
     filter:
     drop-shadow(0 0 30px rgba(255,105,180,0.45));
@@ -132,7 +116,7 @@ body{
 
     color:white;
 
-    font-size:42px;
+    font-size:40px;
 
     font-weight:bold;
 
@@ -192,20 +176,24 @@ body{
 
     position:absolute;
 
-    left:-25px;
-    top:-35px;
+    left:-120px;
 
-    width:220px;
+    top:10px;
 
-    z-index:20;
+    width:230px;
+
+    z-index:5;
 
     pointer-events:none;
 
-    filter:
-    drop-shadow(0 0 25px rgba(255,105,180,0.45))
-    drop-shadow(0 0 40px rgba(255,255,255,0.18));
+    opacity:0.96;
 
-    animation:floatGirl 3s ease-in-out infinite;
+    object-fit:contain;
+
+    filter:
+    drop-shadow(0 0 18px rgba(255,105,180,0.22));
+
+    animation:floatGirl 4s ease-in-out infinite;
 }
 
 @keyframes floatGirl{
@@ -229,8 +217,8 @@ body{
 
     position:absolute;
 
-    top:150px;
-    left:130px;
+    top:135px;
+    left:70px;
 
     background:white;
 
@@ -305,8 +293,6 @@ body{
     text-shadow:0 0 10px rgba(0,0,0,0.35);
 }
 
-/* ===== COMBO TEXTO ===== */
-
 #comboText{
 
     position:absolute;
@@ -343,6 +329,8 @@ body{
     scale(1);
 }
 
+/* ===== CANVAS ===== */
+
 canvas{
 
     position:absolute;
@@ -351,6 +339,8 @@ canvas{
 
     width:100%;
     height:100%;
+
+    image-rendering:auto;
 }
 
 </style>
@@ -453,10 +443,12 @@ window.innerWidth*0.094,
 50
 );
 
-let boardX =
-(window.innerWidth-(CELL*GRID))/2;
+/* TABULEIRO MAIS PRA DIREITA */
 
-let boardY = 185;
+let boardX =
+(window.innerWidth-(CELL*GRID))/2 + 35;
+
+let boardY = 150;
 
 /* ===== SCORE ===== */
 
@@ -477,12 +469,6 @@ for(let y=0;y<GRID;y++){
         board[y][x] = null;
     }
 }
-
-/* ===== EFEITOS ===== */
-
-let particles = [];
-
-let highlightCells = [];
 
 /* ===== FRASES ===== */
 
@@ -512,28 +498,19 @@ const colors = [
 
 ];
 
-/* ===== SHAPES ===== */
+/* ===== PEÇAS ===== */
 
 const SHAPES = [
 
 [[1]],
-
 [[1,1]],
-
 [[1],[1]],
-
 [[1,1,1]],
-
 [[1],[1],[1]],
-
 [[1,1],[1,1]],
-
 [[1,1,1,1]],
-
 [[1],[1],[1],[1]],
-
 [[1,1,1,1,1]],
-
 [[1],[1],[1],[1],[1]],
 
 [[1,1,1],[0,1,0]],
@@ -553,22 +530,9 @@ const SHAPES = [
 
 [[1,1,1],
  [1,1,1],
- [1,1,1]],
-
-[[1,1,1,1],
- [1,1,1,1]],
-
-[[1,1,1],
- [1,0,0],
- [1,0,0]],
-
-[[1,1,1],
- [0,0,1],
- [0,0,1]]
+ [1,1,1]]
 
 ];
-
-/* ===== RANDOM ===== */
 
 function randomColor(){
 
@@ -610,6 +574,14 @@ function generatePieces(){
 let pieces =
 generatePieces();
 
+/* ===== HIGHLIGHT ===== */
+
+let highlightCells = [];
+
+/* ===== PARTICULAS ===== */
+
+let particles = [];
+
 /* ===== DRAG ===== */
 
 let dragging = null;
@@ -641,7 +613,7 @@ function startDrag(e){
         if(piece.used) return;
 
         const px =
-        22 + index*(CELL*2.6);
+        25 + index*(CELL*2.8);
 
         const py =
         canvas.height-145;
@@ -709,15 +681,15 @@ function endDrag(){
                 gy
             );
 
+            pieces[
+                dragging.index
+            ].used = true;
+
             createParticles(
                 gx,
                 gy,
                 dragging.piece.color
             );
-
-            pieces[
-                dragging.index
-            ].used = true;
 
             const cleared =
             clearLines();
@@ -729,9 +701,8 @@ function endDrag(){
                 showPhrase();
 
                 showCombo();
-            }
 
-            else{
+            }else{
 
                 combo = 0;
             }
@@ -745,55 +716,6 @@ function endDrag(){
 
         dragging = null;
     }
-}
-
-/* ===== COMBO ===== */
-
-function showCombo(){
-
-    const comboText =
-    document.getElementById(
-        "comboText"
-    );
-
-    comboText.innerText =
-    "COMBO x" + combo;
-
-    comboText.classList.add(
-        "show"
-    );
-
-    setTimeout(()=>{
-
-        comboText.classList.remove(
-            "show"
-        );
-
-    },700);
-}
-
-/* ===== FRASES ===== */
-
-function showPhrase(){
-
-    const speech =
-    document.getElementById("speech");
-
-    speech.innerText =
-
-    phrases[
-        Math.floor(
-            Math.random()*phrases.length
-        )
-    ];
-
-    speech.classList.add("show");
-
-    setTimeout(()=>{
-
-        speech.classList.remove("show");
-
-    },2200);
 }
 
 /* ===== HIGHLIGHT ===== */
@@ -869,6 +791,7 @@ function canPlace(piece,gx,gy){
 
                     bx >= GRID ||
                     by >= GRID
+
                 ){
 
                     return false;
@@ -946,7 +869,7 @@ function clearLines(){
             }
 
             score +=
-            100 + (combo*30);
+            100 + combo*30;
         }
     }
 
@@ -978,7 +901,7 @@ function clearLines(){
             }
 
             score +=
-            100 + (combo*30);
+            100 + combo*30;
         }
     }
 
@@ -1019,6 +942,55 @@ color
     }
 }
 
+/* ===== COMBO ===== */
+
+function showCombo(){
+
+    const comboText =
+    document.getElementById(
+        "comboText"
+    );
+
+    comboText.innerText =
+    "COMBO x" + combo;
+
+    comboText.classList.add(
+        "show"
+    );
+
+    setTimeout(()=>{
+
+        comboText.classList.remove(
+            "show"
+        );
+
+    },700);
+}
+
+/* ===== FRASE ===== */
+
+function showPhrase(){
+
+    const speech =
+    document.getElementById("speech");
+
+    speech.innerText =
+
+    phrases[
+        Math.floor(
+            Math.random()*phrases.length
+        )
+    ];
+
+    speech.classList.add("show");
+
+    setTimeout(()=>{
+
+        speech.classList.remove("show");
+
+    },2200);
+}
+
 /* ===== UI ===== */
 
 function updateUI(){
@@ -1034,7 +1006,7 @@ function updateUI(){
     "🔥 Combo x" + combo;
 }
 
-/* ===== GAME OVER ===== */
+/* ===== NOVAS PEÇAS ===== */
 
 function checkPieces(){
 
@@ -1053,47 +1025,9 @@ function checkPieces(){
         pieces =
         generatePieces();
     }
-
-    checkGameOver();
 }
 
-function checkGameOver(){
-
-    for(let piece of pieces){
-
-        if(piece.used) continue;
-
-        for(let y=0;y<GRID;y++){
-
-            for(let x=0;x<GRID;x++){
-
-                if(
-                    canPlace(
-                        piece,
-                        x,
-                        y
-                    )
-                ){
-
-                    return;
-                }
-            }
-        }
-    }
-
-    setTimeout(()=>{
-
-        alert(
-        "Fim de jogo ❤️\nPontuação: "
-        + score
-        );
-
-        location.reload();
-
-    },500);
-}
-
-/* ===== DRAW ===== */
+/* ===== DESENHAR ===== */
 
 function roundRect(
 x,y,w,h,r,color
@@ -1181,8 +1115,6 @@ function drawBoard(){
                     board[y][x]
                 );
 
-                /* brilho 3D */
-
                 roundRect(
                     px+5,
                     py+5,
@@ -1190,18 +1122,6 @@ function drawBoard(){
                     9,
                     5,
                     "rgba(255,255,255,0.28)"
-                );
-
-                ctx.strokeStyle =
-                "rgba(255,255,255,0.18)";
-
-                ctx.lineWidth = 2;
-
-                ctx.strokeRect(
-                    px+4,
-                    py+4,
-                    CELL-12,
-                    CELL-12
                 );
             }
         }
@@ -1269,7 +1189,7 @@ function drawPieces(){
 
             piece,
 
-            22 + index*(CELL*2.6),
+            25 + index*(CELL*2.8),
 
             canvas.height-145
         );
@@ -1335,7 +1255,7 @@ function drawParticles(){
     ctx.globalAlpha = 1;
 }
 
-/* ===== EVENTS ===== */
+/* ===== EVENTOS ===== */
 
 canvas.addEventListener(
 "touchstart",
