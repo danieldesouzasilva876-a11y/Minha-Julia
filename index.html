@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Life With Júlia ❤️</title>
+<title>Love Quest ❤️</title>
 
 <style>
 
@@ -16,45 +16,84 @@
 body{
     overflow:hidden;
     background:#111;
-    font-family:Arial, sans-serif;
+    font-family:Arial;
 }
 
 canvas{
     display:block;
+    background:linear-gradient(#ff7eb3,#ffd6e8);
 }
 
-#startScreen{
+#ui{
 
     position:absolute;
+    top:20px;
+    left:20px;
+
+    color:white;
+
+    z-index:10;
+
+    text-shadow:0 0 10px black;
+}
+
+#score{
+    font-size:35px;
+}
+
+#message{
+
+    position:absolute;
+
+    top:40px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    background:rgba(255,255,255,0.9);
+
+    padding:18px 35px;
+
+    border-radius:25px;
+
+    color:#ff1493;
+
+    font-size:28px;
+
+    display:none;
+
+    z-index:20;
+}
+
+#start{
+
+    position:absolute;
+
     width:100%;
     height:100%;
 
-    background:linear-gradient(180deg,#ff5fa2,#ffb6d9);
+    background:rgba(0,0,0,0.7);
 
     display:flex;
     justify-content:center;
     align-items:center;
     flex-direction:column;
 
-    z-index:100;
-
     color:white;
+
+    z-index:50;
 }
 
-#startScreen h1{
+#start h1{
 
     font-size:90px;
 
-    text-shadow:0 0 25px hotpink;
+    color:pink;
+
+    text-shadow:0 0 30px hotpink;
 }
 
-#startScreen p{
-
-    margin-top:20px;
-    font-size:30px;
-}
-
-#playBtn{
+#start button{
 
     margin-top:40px;
 
@@ -62,145 +101,40 @@ canvas{
 
     padding:20px 60px;
 
+    font-size:30px;
+
     border-radius:25px;
-
-    background:white;
-
-    color:#ff1493;
-
-    font-size:32px;
 
     cursor:pointer;
 
-    box-shadow:0 0 25px white;
-}
-
-#dialogue{
-
-    position:absolute;
-
-    bottom:30px;
-    left:50%;
-
-    transform:translateX(-50%);
-
-    width:900px;
-
-    background:rgba(255,255,255,0.96);
-
-    border-radius:30px;
-
-    padding:25px;
-
-    display:none;
-
-    z-index:50;
-
-    box-shadow:0 0 30px rgba(0,0,0,0.4);
-}
-
-#dialogueText{
-
-    font-size:32px;
-
-    color:#ff1493;
-
-    text-align:center;
-}
-
-#loveBar{
-
-    position:absolute;
-
-    top:20px;
-    left:20px;
-
-    width:350px;
-    height:35px;
-
-    background:rgba(255,255,255,0.3);
-
-    border-radius:20px;
-
-    overflow:hidden;
-
-    border:2px solid white;
-
-    z-index:10;
-}
-
-#loveFill{
-
-    width:0%;
-    height:100%;
-
-    background:linear-gradient(90deg,#ff1493,#ff7eb3);
-
-    transition:0.3s;
-}
-
-#loveText{
-
-    position:absolute;
-
-    top:65px;
-    left:20px;
+    background:hotpink;
 
     color:white;
 
-    font-size:28px;
-
-    text-shadow:0 0 10px black;
-
-    z-index:10;
-}
-
-#controls{
-
-    position:absolute;
-
-    top:20px;
-    right:20px;
-
-    color:white;
-
-    font-size:24px;
-
-    text-align:right;
-
-    text-shadow:0 0 10px black;
-
-    z-index:10;
+    box-shadow:0 0 25px hotpink;
 }
 
 </style>
 </head>
 <body>
 
-<div id="startScreen">
+<div id="start">
 
-    <h1>Life With Júlia ❤️</h1>
+    <h1>LOVE QUEST ❤️</h1>
 
-    <p>Entre no nosso mundinho</p>
+    <p>Uma aventura romântica</p>
 
-    <button id="playBtn">COMEÇAR</button>
+    <button id="playBtn">JOGAR</button>
 
 </div>
 
-<div id="loveBar">
-    <div id="loveFill"></div>
+<div id="ui">
+
+    <div id="score">❤️ 0</div>
+
 </div>
 
-<div id="loveText">Amor ❤️ 0%</div>
-
-<div id="controls">
-    ← → ↑ ↓ para andar<br>
-    SPACE para interagir
-</div>
-
-<div id="dialogue">
-    <div id="dialogueText"></div>
-</div>
+<div id="message"></div>
 
 <canvas id="game"></canvas>
 
@@ -219,198 +153,236 @@ music.volume = 0.4;
 const playerImg = new Image();
 playerImg.src = "julia.png";
 
-let gameStarted = false;
+const gravity = 0.8;
 
-const keys = {};
+let gameStarted = false;
 
 const player = {
 
-    x:500,
-    y:350,
+    x:150,
+    y:300,
 
-    width:170,
-    height:240,
+    width:130,
+    height:180,
 
-    speed:6
+    velX:0,
+    velY:0,
+
+    speed:7,
+
+    jumping:false
 };
 
-let love = 0;
+const keys = {};
 
-const interactions = [
+let cameraX = 0;
 
-{
-    x:250,
-    y:240,
-    width:170,
-    height:130,
-    emoji:"🛏️",
-    text:"Nosso cantinho seria perfeito ❤️",
-    done:false
-},
+let score = 0;
 
-{
-    x:850,
-    y:220,
-    width:140,
-    height:120,
-    emoji:"📺",
-    text:"Imagina maratonar séries juntinhos 🥰",
-    done:false
-},
+const platforms = [
 
-{
-    x:640,
-    y:520,
-    width:130,
-    height:120,
-    emoji:"🌹",
-    text:"Você é a parte mais bonita da minha vida ❤️",
-    done:false
-},
+    {x:0,y:650,w:1000,h:100},
 
-{
-    x:1120,
-    y:470,
-    width:150,
-    height:140,
-    emoji:"🎁",
-    text:"Seu prêmio final vai ser especial 😘",
-    done:false
-},
+    {x:1200,y:580,w:300,h:40},
 
-{
-    x:150,
-    y:520,
-    width:120,
-    height:120,
-    emoji:"🎵",
-    text:"Toda música me lembra você ❤️",
-    done:false
-}
+    {x:1700,y:500,w:300,h:40},
 
+    {x:2200,y:430,w:300,h:40},
+
+    {x:2800,y:650,w:1200,h:100}
 ];
 
-function updateLove(){
+const hearts = [
 
-    document.getElementById("loveFill").style.width = love + "%";
+    {x:1280,y:510,collected:false},
 
-    document.getElementById("loveText").innerText =
-    "Amor ❤️ " + love + "%";
-}
+    {x:1780,y:430,collected:false},
 
-window.addEventListener("keydown", e=>{
+    {x:2280,y:360,collected:false}
+];
+
+const messages = [
+
+"Você ilumina minha vida ❤️",
+
+"Meu lugar favorito é com você ❤️",
+
+"Você é meu prêmio final ❤️"
+];
+
+const particles = [];
+
+document.addEventListener("keydown", e=>{
 
     keys[e.key] = true;
 
-    if(e.code === "Space"){
-        interact();
+    if(e.key === "ArrowUp" && !player.jumping){
+
+        player.velY = -18;
+
+        player.jumping = true;
     }
 });
 
-window.addEventListener("keyup", e=>{
+document.addEventListener("keyup", e=>{
+
     keys[e.key] = false;
 });
 
-function movePlayer(){
+function createParticles(x,y){
 
-    if(keys["ArrowLeft"]){
-        player.x -= player.speed;
+    for(let i=0;i<15;i++){
+
+        particles.push({
+
+            x:x,
+            y:y,
+
+            size:Math.random()*6+2,
+
+            velX:(Math.random()-0.5)*6,
+            velY:(Math.random()-0.5)*6,
+
+            alpha:1
+        });
     }
-
-    if(keys["ArrowRight"]){
-        player.x += player.speed;
-    }
-
-    if(keys["ArrowUp"]){
-        player.y -= player.speed;
-    }
-
-    if(keys["ArrowDown"]){
-        player.y += player.speed;
-    }
-
-    if(player.x < 0) player.x = 0;
-    if(player.x > canvas.width-player.width)
-        player.x = canvas.width-player.width;
-
-    if(player.y < 0) player.y = 0;
-    if(player.y > canvas.height-player.height)
-        player.y = canvas.height-player.height;
 }
 
-function interact(){
+function showMessage(text){
 
-    interactions.forEach(item=>{
+    const box = document.getElementById("message");
 
-        const touching =
-        player.x < item.x + item.width &&
-        player.x + player.width > item.x &&
-        player.y < item.y + item.height &&
-        player.y + player.height > item.y;
-
-        if(touching && !item.done){
-
-            item.done = true;
-
-            love += 20;
-
-            if(love > 100) love = 100;
-
-            updateLove();
-
-            showDialogue(item.text);
-
-            if(love >= 100){
-
-                setTimeout(()=>{
-
-                    showDialogue(
-                    "Parabéns ❤️ Seu prêmio é um encontro comigo 😘"
-                    );
-
-                },2000);
-            }
-        }
-    });
-}
-
-function showDialogue(text){
-
-    const box = document.getElementById("dialogue");
-
-    document.getElementById("dialogueText").innerText = text;
+    box.innerText = text;
 
     box.style.display = "block";
 
     setTimeout(()=>{
+
         box.style.display = "none";
-    },3500);
+
+    },2500);
+}
+
+function update(){
+
+    player.velX = 0;
+
+    if(keys["ArrowRight"]){
+
+        player.velX = player.speed;
+    }
+
+    if(keys["ArrowLeft"]){
+
+        player.velX = -player.speed;
+    }
+
+    player.x += player.velX;
+
+    player.velY += gravity;
+
+    player.y += player.velY;
+
+    let grounded = false;
+
+    platforms.forEach(platform=>{
+
+        if(
+
+            player.x + player.width > platform.x &&
+            player.x < platform.x + platform.w &&
+
+            player.y + player.height > platform.y &&
+            player.y + player.height < platform.y + 30 &&
+
+            player.velY >= 0
+        ){
+
+            player.y = platform.y - player.height;
+
+            player.velY = 0;
+
+            grounded = true;
+        }
+    });
+
+    player.jumping = !grounded;
+
+    hearts.forEach((heart,index)=>{
+
+        if(!heart.collected){
+
+            if(
+
+                player.x < heart.x + 40 &&
+                player.x + player.width > heart.x &&
+
+                player.y < heart.y + 40 &&
+                player.y + player.height > heart.y
+            ){
+
+                heart.collected = true;
+
+                score++;
+
+                document.getElementById("score").innerText =
+                "❤️ " + score;
+
+                createParticles(heart.x,heart.y);
+
+                showMessage(
+                    messages[Math.floor(Math.random()*messages.length)]
+                );
+            }
+        }
+    });
+
+    particles.forEach((p,index)=>{
+
+        p.x += p.velX;
+        p.y += p.velY;
+
+        p.alpha -= 0.02;
+
+        if(p.alpha <= 0){
+
+            particles.splice(index,1);
+        }
+    });
+
+    cameraX = player.x - 300;
+
+    if(cameraX < 0){
+
+        cameraX = 0;
+    }
 }
 
 function drawBackground(){
 
-    const gradient = ctx.createLinearGradient(0,0,0,canvas.height);
+    const gradient = ctx.createLinearGradient(
+        0,0,0,canvas.height
+    );
 
     gradient.addColorStop(0,"#ff7eb3");
     gradient.addColorStop(1,"#ffd6e8");
 
     ctx.fillStyle = gradient;
+
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // chão
-    ctx.fillStyle = "#f7b2d9";
-    ctx.fillRect(0,canvas.height-180,canvas.width,180);
+    // nuvens
 
-    // luzes
-    for(let i=0;i<40;i++){
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
 
-        ctx.fillStyle = "rgba(255,255,255,0.12)";
+    for(let i=0;i<12;i++){
 
         ctx.beginPath();
+
         ctx.arc(
-            Math.random()*canvas.width,
-            Math.random()*canvas.height,
-            Math.random()*5,
+            i*400 - cameraX*0.2,
+            100 + Math.sin(i)*30,
+            50,
             0,
             Math.PI*2
         );
@@ -419,82 +391,97 @@ function drawBackground(){
     }
 }
 
-function drawRoom(){
+function drawPlatforms(){
 
-    // cama
-    ctx.fillStyle = "#ff5fa2";
-    ctx.fillRect(250,240,170,130);
+    platforms.forEach(platform=>{
 
-    ctx.fillStyle = "white";
-    ctx.fillRect(270,260,70,40);
+        // terra
 
-    // tv
-    ctx.fillStyle = "#222";
-    ctx.fillRect(850,220,140,120);
+        ctx.fillStyle = "#7a5230";
 
-    // flor
-    ctx.fillStyle = "#2ecc71";
-    ctx.fillRect(690,530,20,80);
+        ctx.fillRect(
 
-    ctx.fillStyle = "#ff1493";
+            platform.x-cameraX,
+            platform.y,
 
-    ctx.beginPath();
-    ctx.arc(700,510,30,0,Math.PI*2);
-    ctx.fill();
+            platform.w,
+            platform.h
+        );
 
-    // presente
-    ctx.fillStyle = "#ff1744";
-    ctx.fillRect(1120,470,150,140);
+        // grama
 
-    ctx.fillStyle = "gold";
-    ctx.fillRect(1185,470,20,140);
-    ctx.fillRect(1120,530,150,20);
+        ctx.fillStyle = "#2ecc71";
 
-    // música
-    ctx.fillStyle = "white";
-    ctx.font = "90px Arial";
-    ctx.fillText("🎵",150,600);
+        ctx.fillRect(
+
+            platform.x-cameraX,
+            platform.y,
+
+            platform.w,
+            15
+        );
+    });
 }
 
-function drawInteractions(){
+function drawHearts(){
 
-    interactions.forEach(item=>{
+    hearts.forEach(heart=>{
 
-        if(!item.done){
+        if(!heart.collected){
 
-            ctx.font = "60px Arial";
+            ctx.font = "45px Arial";
 
             ctx.fillText(
-                item.emoji,
-                item.x + 40,
-                item.y - 20
-            );
 
-            // brilho
-            ctx.strokeStyle = "rgba(255,255,255,0.35)";
-            ctx.lineWidth = 4;
+                "❤️",
 
-            ctx.strokeRect(
-                item.x,
-                item.y,
-                item.width,
-                item.height
+                heart.x-cameraX,
+                heart.y
             );
         }
+    });
+}
+
+function drawParticles(){
+
+    particles.forEach(p=>{
+
+        ctx.globalAlpha = p.alpha;
+
+        ctx.fillStyle = "white";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x-cameraX,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+        ctx.globalAlpha = 1;
     });
 }
 
 function drawPlayer(){
 
     // sombra
-    ctx.fillStyle = "rgba(0,0,0,0.25)";
+
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
 
     ctx.beginPath();
+
     ctx.ellipse(
-        player.x + 85,
-        player.y + 250,
-        55,
-        18,
+
+        player.x-cameraX+65,
+        player.y+190,
+
+        50,
+        15,
+
         0,
         0,
         Math.PI*2
@@ -503,72 +490,96 @@ function drawPlayer(){
     ctx.fill();
 
     // brilho
+
     ctx.shadowColor = "hotpink";
-    ctx.shadowBlur = 35;
+    ctx.shadowBlur = 30;
 
     ctx.drawImage(
+
         playerImg,
-        player.x,
+
+        player.x-cameraX,
         player.y,
+
         player.width,
         player.height
     );
 
     ctx.shadowBlur = 0;
+}
 
-    // balão
-    ctx.fillStyle = "white";
+function drawFinal(){
 
-    ctx.beginPath();
-    ctx.roundRect(
-        player.x - 40,
-        player.y - 70,
-        250,
-        55,
-        20
-    );
+    if(score >= 3){
 
-    ctx.fill();
+        ctx.fillStyle = "rgba(0,0,0,0.7)";
 
-    ctx.fillStyle = "#ff1493";
-    ctx.font = "22px Arial";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillText(
-        "❤️ Eu te amo ❤️",
-        player.x - 15,
-        player.y - 35
-    );
+        ctx.fillStyle = "pink";
+
+        ctx.font = "80px Arial";
+
+        ctx.fillText(
+
+            "Você venceu meu coração ❤️",
+
+            180,
+            250
+        );
+
+        ctx.font = "45px Arial";
+
+        ctx.fillText(
+
+            "Seu prêmio é um encontro comigo 😘",
+
+            280,
+            360
+        );
+    }
+}
+
+function draw(){
+
+    drawBackground();
+
+    drawPlatforms();
+
+    drawHearts();
+
+    drawParticles();
+
+    drawPlayer();
+
+    drawFinal();
 }
 
 function loop(){
 
     if(gameStarted){
-        movePlayer();
+
+        update();
     }
 
-    drawBackground();
-
-    drawRoom();
-
-    drawInteractions();
-
-    drawPlayer();
+    draw();
 
     requestAnimationFrame(loop);
 }
 
 playerImg.onload = ()=>{
+
     loop();
 };
 
 playerImg.onerror = ()=>{
+
     loop();
 };
 
-
 document.getElementById("playBtn").onclick = ()=>{
 
-    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("start").style.display = "none";
 
     gameStarted = true;
 
