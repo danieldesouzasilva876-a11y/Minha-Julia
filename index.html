@@ -1,195 +1,148 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Para Júlia ❤️</title>
-
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    body{
-      height:100vh;
-      overflow:hidden;
-      background: linear-gradient(135deg, #ff4d6d, #ff758f, #ff8fa3);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      position:relative;
-    }
-
-    /* Fundo brilhando */
-    body::before{
-      content:'';
-      position:absolute;
-      width:600px;
-      height:600px;
-      background:rgba(255,255,255,0.15);
-      border-radius:50%;
-      filter: blur(100px);
-      animation: pulse 5s infinite alternate;
-    }
-
-    @keyframes pulse{
-      from{
-        transform:scale(1);
-      }
-      to{
-        transform:scale(1.2);
-      }
-    }
-
-    .container{
-      position:relative;
-      z-index:2;
-      width:90%;
-      max-width:750px;
-      padding:40px;
-      border-radius:25px;
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(12px);
-      border:1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 0 40px rgba(0,0,0,0.2);
-      text-align:center;
-      animation: fade 2s ease;
-    }
-
-    @keyframes fade{
-      from{
-        opacity:0;
-        transform:translateY(30px);
-      }
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
-    }
-
-    h1{
-      color:white;
-      font-size:3rem;
-      margin-bottom:20px;
-      text-shadow:0 0 15px rgba(255,255,255,0.5);
-    }
-
-    p{
-      color:white;
-      font-size:1.3rem;
-      line-height:1.8;
-      text-shadow:0 0 8px rgba(0,0,0,0.2);
-    }
-
-    .heart{
-      position:absolute;
-      color:#fff;
-      font-size:20px;
-      animation: subir linear infinite;
-      opacity:0.7;
-    }
-
-    @keyframes subir{
-      from{
-        transform:translateY(100vh) scale(0.5);
-        opacity:0;
-      }
-
-      to{
-        transform:translateY(-120px) scale(1.5);
-        opacity:1;
-      }
-    }
-
-    .assinatura{
-      margin-top:30px;
-      color:white;
-      font-size:1.1rem;
-      opacity:0.9;
-    }
-
-    .glow{
-      color:#fff;
-      animation: brilho 2s infinite alternate;
-    }
-
-    @keyframes brilho{
-      from{
-        text-shadow:0 0 10px #fff;
-      }
-      to{
-        text-shadow:
-        0 0 20px #fff,
-        0 0 40px #ffccd5,
-        0 0 60px #fff;
-      }
-    }
-
-    @media(max-width:600px){
-      h1{
-        font-size:2.2rem;
-      }
-
-      p{
-        font-size:1.05rem;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Jogo da Júlia ❤️</title>
+<style>
+body{
+  margin:0;
+  overflow:hidden;
+  background:#87CEEB;
+}
+canvas{
+  display:block;
+  margin:auto;
+  border:2px solid black;
+}
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <h1 class="glow">Júlia ❤️</h1>
+<canvas id="game" width="1000" height="500"></canvas>
 
-    <p>
-      Desde que você entrou na minha vida,
-      tudo ficou mais bonito.
-      Seu sorriso consegue iluminar meus dias
-      e sua presença faz meu coração bater diferente.
-      <br><br>
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-      Eu amo cada detalhe seu,
-      cada conversa,
-      cada momento,
-      cada risada.
-      <br><br>
+const player = {
+  x:100,
+  y:330,
+  w:80,
+  h:100,
+  vx:0,
+  vy:0,
+  onGround:true
+};
 
-      Esse site é só uma pequena forma
-      de mostrar o quanto você é especial pra mim.
-      <br><br>
+const gravity = 0.7;
+const speed = 6;
 
-      Você é a melhor parte dos meus dias.
-      ❤️
-    </p>
+const keys = {};
 
-    <div class="assinatura">
-      Com amor, Daniel 💖
-    </div>
-  </div>
+const img = new Image();
+img.src = "julia.png";
 
-  <script>
-    function criarCoracao(){
-      const heart = document.createElement("div");
+const hearts = [
+  {x:350,y:340},
+  {x:550,y:260},
+  {x:750,y:340}
+];
 
-      heart.classList.add("heart");
-      heart.innerHTML = "❤";
+let score = 0;
 
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.animationDuration = (Math.random() * 3 + 3) + "s";
-      heart.style.fontSize = (Math.random() * 20 + 15) + "px";
+document.addEventListener("keydown", e=>{
+  keys[e.key] = true;
 
-      document.body.appendChild(heart);
+  if(e.key === "ArrowUp" && player.onGround){
+    player.vy = -15;
+    player.onGround = false;
+  }
+});
 
-      setTimeout(() => {
-        heart.remove();
-      }, 7000);
+document.addEventListener("keyup", e=>{
+  keys[e.key] = false;
+});
+
+function update(){
+
+  if(keys["ArrowRight"]){
+    player.x += speed;
+  }
+
+  if(keys["ArrowLeft"]){
+    player.x -= speed;
+  }
+
+  player.vy += gravity;
+  player.y += player.vy;
+
+  if(player.y >= 330){
+    player.y = 330;
+    player.vy = 0;
+    player.onGround = true;
+  }
+
+  hearts.forEach((heart,index)=>{
+    if(
+      player.x < heart.x + 30 &&
+      player.x + player.w > heart.x &&
+      player.y < heart.y + 30 &&
+      player.y + player.h > heart.y
+    ){
+      hearts.splice(index,1);
+      score++;
     }
+  });
+}
 
-    setInterval(criarCoracao, 250);
-  </script>
+function draw(){
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // céu
+  ctx.fillStyle = "#87CEEB";
+  ctx.fillRect(0,0,1000,500);
+
+  // chão
+  ctx.fillStyle = "green";
+  ctx.fillRect(0,430,1000,70);
+
+  // personagem
+  ctx.drawImage(
+    img,
+    player.x,
+    player.y,
+    player.w,
+    player.h
+  );
+
+  // corações
+  hearts.forEach(h=>{
+    ctx.font = "30px Arial";
+    ctx.fillText("❤️", h.x, h.y);
+  });
+
+  // pontos
+  ctx.fillStyle = "black";
+  ctx.font = "24px Arial";
+  ctx.fillText("Corações: " + score, 20, 40);
+
+  // final
+  if(score === 3){
+    ctx.fillStyle = "pink";
+    ctx.font = "40px Arial";
+    ctx.fillText("Você conquistou meu coração ❤️", 180, 180);
+  }
+}
+
+function loop(){
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
 
 </body>
 </html>
