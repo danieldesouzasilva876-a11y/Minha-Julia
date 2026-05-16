@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+
 <meta
 name="viewport"
 content="width=device-width,
@@ -28,13 +29,13 @@ body{
 
     touch-action:none;
 
+    font-family:Arial;
+
     background:linear-gradient(
         180deg,
         #6676ff,
-        #91a4ff
+        #93a7ff
     );
-
-    font-family:Arial;
 
     height:100vh;
 }
@@ -53,7 +54,7 @@ canvas{
 
     position:absolute;
 
-    top:15px;
+    top:10px;
 
     width:100%;
 
@@ -68,31 +69,31 @@ canvas{
 
 #photo{
 
-    width:95px;
-    height:95px;
+    width:82px;
+    height:82px;
 
     border-radius:50%;
 
-    object-fit:cover;
-
     border:4px solid white;
+
+    object-fit:cover;
 
     box-shadow:0 0 20px hotpink;
 }
 
 #speech{
 
-    margin-top:10px;
+    margin-top:8px;
 
     background:white;
 
-    padding:12px 22px;
+    padding:10px 20px;
 
     border-radius:20px;
 
     color:#ff1493;
 
-    font-size:18px;
+    font-size:15px;
 
     font-weight:bold;
 
@@ -103,18 +104,16 @@ canvas{
 
     position:absolute;
 
-    top:25px;
-    left:20px;
+    top:18px;
+    left:18px;
 
     color:#ffd54f;
 
-    font-size:30px;
+    font-size:28px;
 
     font-weight:bold;
 
     z-index:20;
-
-    text-shadow:0 0 10px rgba(0,0,0,0.5);
 }
 
 </style>
@@ -157,25 +156,27 @@ function resize(){
 resize();
 
 window.addEventListener(
-    "resize",
-    resize
+"resize",
+resize
 );
 
 const GRID = 8;
 
 let CELL =
-Math.min(window.innerWidth*0.11,70);
+Math.min(window.innerWidth*0.095,52);
 
 let boardX =
 (window.innerWidth-(CELL*GRID))/2;
 
-let boardY = 180;
+let boardY = 150;
+
+let score = 0;
 
 const colors = [
 
-    "#ff4d6d",
-    "#4cc9f0",
-    "#ffd60a"
+"#ff4d6d",
+"#4cc9f0",
+"#ffd60a"
 ];
 
 const phrases = [
@@ -183,17 +184,13 @@ const phrases = [
 "Te amo ❤️",
 "Minha baixinha ❤️",
 "Morena do Daniel ❤️",
-"Você é perfeita ❤️",
 "Meu amor ❤️",
+"Você é perfeita ❤️",
 "Linda demais ❤️",
-"Você me faz feliz ❤️",
-"Meu coração é seu ❤️",
-"Você é minha princesa ❤️",
-"Quero você pra sempre ❤️"
+"Você é minha paz ❤️",
+"Meu coração é seu ❤️"
 
 ];
-
-let score = 0;
 
 const board = [];
 
@@ -234,7 +231,11 @@ function randomPiece(){
 
         [[1,1,1,1]],
 
-        [[1],[1],[1],[1]]
+        [[1],[1],[1],[1]],
+
+        [[1,1,1],[0,1,0]],
+
+        [[1,0],[1,1]]
     ];
 
     return {
@@ -245,16 +246,24 @@ function randomPiece(){
             )
         ],
 
-        color:randomColor()
+        color:randomColor(),
+
+        used:false
     };
 }
 
-let pieces = [
+function generatePieces(){
 
-    randomPiece(),
-    randomPiece(),
-    randomPiece()
-];
+    return [
+
+        randomPiece(),
+        randomPiece(),
+        randomPiece()
+    ];
+}
+
+let pieces =
+generatePieces();
 
 let dragging = null;
 
@@ -277,23 +286,26 @@ function touchPos(e){
 
 function startDrag(e){
 
-    const pos = touchPos(e);
+    const pos =
+    touchPos(e);
 
     pieces.forEach((piece,index)=>{
 
+        if(piece.used) return;
+
         const px =
-        40 + index*(CELL*2.7);
+        35 + index*(CELL*2.5);
 
         const py =
-        canvas.height-160;
+        canvas.height-130;
 
         if(
 
             pos.x > px &&
-            pos.x < px+140 &&
+            pos.x < px+120 &&
 
             pos.y > py &&
-            pos.y < py+140
+            pos.y < py+120
         ){
 
             dragging = {
@@ -312,7 +324,8 @@ function moveDrag(e){
 
     if(dragging){
 
-        const pos = touchPos(e);
+        const pos =
+        touchPos(e);
 
         dragging.x = pos.x;
         dragging.y = pos.y;
@@ -349,14 +362,35 @@ function endDrag(){
 
             pieces[
                 dragging.index
-            ] = randomPiece();
+            ].used = true;
 
             clearLines();
 
             updatePhrase();
+
+            checkNewPieces();
         }
 
         dragging = null;
+    }
+}
+
+function checkNewPieces(){
+
+    let allUsed = true;
+
+    pieces.forEach(p=>{
+
+        if(!p.used){
+
+            allUsed = false;
+        }
+    });
+
+    if(allUsed){
+
+        pieces =
+        generatePieces();
     }
 }
 
@@ -514,7 +548,9 @@ function updatePhrase(){
     ];
 }
 
-function roundRect(x,y,w,h,r,color){
+function roundRect(
+x,y,w,h,r,color
+){
 
     ctx.fillStyle = color;
 
@@ -566,8 +602,8 @@ function drawBoard(){
                 py,
                 CELL-4,
                 CELL-4,
-                12,
-                "#1d2766"
+                10,
+                "#1c2766"
             );
 
             if(board[y][x]){
@@ -577,7 +613,7 @@ function drawBoard(){
                     py+2,
                     CELL-8,
                     CELL-8,
-                    12,
+                    10,
                     board[y][x]
                 );
 
@@ -585,8 +621,8 @@ function drawBoard(){
                     px+7,
                     py+7,
                     CELL-20,
-                    12,
-                    8,
+                    10,
+                    6,
                     "rgba(255,255,255,0.25)"
                 );
             }
@@ -594,7 +630,12 @@ function drawBoard(){
     }
 }
 
-function drawPiece(piece,px,py){
+function drawPiece(
+piece,
+px,
+py,
+drag=false
+){
 
     for(let y=0;
         y<piece.shape.length;
@@ -617,7 +658,7 @@ function drawPiece(piece,px,py){
                     dy,
                     CELL-8,
                     CELL-8,
-                    12,
+                    10,
                     piece.color
                 );
 
@@ -626,7 +667,7 @@ function drawPiece(piece,px,py){
                     dy+5,
                     CELL-20,
                     10,
-                    8,
+                    6,
                     "rgba(255,255,255,0.25)"
                 );
             }
@@ -638,13 +679,15 @@ function drawPieces(){
 
     pieces.forEach((piece,index)=>{
 
+        if(piece.used) return;
+
         drawPiece(
 
             piece,
 
-            40 + index*(CELL*2.7),
+            35 + index*(CELL*2.5),
 
-            canvas.height-160
+            canvas.height-130
         );
     });
 
@@ -656,7 +699,9 @@ function drawPieces(){
 
             dragging.x-30,
 
-            dragging.y-30
+            dragging.y-30,
+
+            true
         );
     }
 }
