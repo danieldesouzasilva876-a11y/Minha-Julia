@@ -5,13 +5,15 @@
 
 <meta
 name="viewport"
-content="width=device-width,
+content="
+width=device-width,
 initial-scale=1.0,
 maximum-scale=1.0,
-user-scalable=no"
+user-scalable=no
+"
 />
 
-<title>Love Block ❤️</title>
+<title>Love Block Blast ❤️</title>
 
 <style>
 
@@ -33,8 +35,8 @@ body{
 
     background:linear-gradient(
         180deg,
-        #6676ff,
-        #93a7ff
+        #5e72ff,
+        #90a2ff
     );
 
     height:100vh;
@@ -54,7 +56,7 @@ canvas{
 
     position:absolute;
 
-    top:10px;
+    top:12px;
 
     width:100%;
 
@@ -69,16 +71,16 @@ canvas{
 
 #photo{
 
-    width:82px;
-    height:82px;
+    width:80px;
+    height:80px;
 
     border-radius:50%;
 
-    border:4px solid white;
-
     object-fit:cover;
 
-    box-shadow:0 0 20px hotpink;
+    border:4px solid white;
+
+    box-shadow:0 0 18px hotpink;
 }
 
 #speech{
@@ -87,7 +89,7 @@ canvas{
 
     background:white;
 
-    padding:10px 20px;
+    padding:10px 18px;
 
     border-radius:20px;
 
@@ -104,12 +106,28 @@ canvas{
 
     position:absolute;
 
-    top:18px;
+    top:20px;
     left:18px;
 
     color:#ffd54f;
 
     font-size:28px;
+
+    font-weight:bold;
+
+    z-index:20;
+}
+
+#combo{
+
+    position:absolute;
+
+    top:60px;
+    left:18px;
+
+    color:white;
+
+    font-size:18px;
 
     font-weight:bold;
 
@@ -122,6 +140,10 @@ canvas{
 
 <div id="score">
 👑 0
+</div>
+
+<div id="combo">
+🔥 Combo x0
 </div>
 
 <div id="top">
@@ -163,34 +185,15 @@ resize
 const GRID = 8;
 
 let CELL =
-Math.min(window.innerWidth*0.095,52);
+Math.min(
+    window.innerWidth*0.095,
+    50
+);
 
 let boardX =
 (window.innerWidth-(CELL*GRID))/2;
 
-let boardY = 150;
-
-let score = 0;
-
-const colors = [
-
-"#ff4d6d",
-"#4cc9f0",
-"#ffd60a"
-];
-
-const phrases = [
-
-"Te amo ❤️",
-"Minha baixinha ❤️",
-"Morena do Daniel ❤️",
-"Meu amor ❤️",
-"Você é perfeita ❤️",
-"Linda demais ❤️",
-"Você é minha paz ❤️",
-"Meu coração é seu ❤️"
-
-];
+let boardY = 145;
 
 const board = [];
 
@@ -204,6 +207,33 @@ for(let y=0;y<GRID;y++){
     }
 }
 
+const colors = [
+
+"#ff4d6d",
+"#4cc9f0",
+"#ffd60a",
+"#7bff7b"
+
+];
+
+const phrases = [
+
+"Te amo ❤️",
+"Minha baixinha ❤️",
+"Morena do Daniel ❤️",
+"Você é perfeita ❤️",
+"Meu amor ❤️",
+"Linda demais ❤️",
+"Você me faz feliz ❤️",
+"Meu coração é seu ❤️",
+"Você é minha paz ❤️"
+
+];
+
+let score = 0;
+
+let combo = 0;
+
 function randomColor(){
 
     return colors[
@@ -213,36 +243,46 @@ function randomColor(){
     ];
 }
 
+const SHAPES = [
+
+[[1]],
+
+[[1,1]],
+
+[[1],[1]],
+
+[[1,1,1]],
+
+[[1],[1],[1]],
+
+[[1,1],[1,1]],
+
+[[1,1,1,1]],
+
+[[1],[1],[1],[1]],
+
+[[1,1,1],[0,1,0]],
+
+[[1,0],[1,1]],
+
+[[0,1],[1,1]],
+
+[[1,1,0],[0,1,1]],
+
+[[1,1,1],[1,0,0]],
+
+[[1,1,1],[0,0,1]]
+
+];
+
 function randomPiece(){
-
-    const pieces = [
-
-        [[1]],
-
-        [[1,1]],
-
-        [[1],[1]],
-
-        [[1,1],[1,1]],
-
-        [[1,1,1]],
-
-        [[1],[1],[1]],
-
-        [[1,1,1,1]],
-
-        [[1],[1],[1],[1]],
-
-        [[1,1,1],[0,1,0]],
-
-        [[1,0],[1,1]]
-    ];
 
     return {
 
-        shape:pieces[
+        shape:
+        SHAPES[
             Math.floor(
-                Math.random()*pieces.length
+                Math.random()*SHAPES.length
             )
         ],
 
@@ -259,6 +299,7 @@ function generatePieces(){
         randomPiece(),
         randomPiece(),
         randomPiece()
+
     ];
 }
 
@@ -267,7 +308,7 @@ generatePieces();
 
 let dragging = null;
 
-function touchPos(e){
+function getPos(e){
 
     const rect =
     canvas.getBoundingClientRect();
@@ -286,8 +327,7 @@ function touchPos(e){
 
 function startDrag(e){
 
-    const pos =
-    touchPos(e);
+    const pos = getPos(e);
 
     pieces.forEach((piece,index)=>{
 
@@ -297,15 +337,15 @@ function startDrag(e){
         35 + index*(CELL*2.5);
 
         const py =
-        canvas.height-130;
+        canvas.height-140;
 
         if(
 
             pos.x > px &&
-            pos.x < px+120 &&
+            pos.x < px+140 &&
 
             pos.y > py &&
-            pos.y < py+120
+            pos.y < py+140
         ){
 
             dragging = {
@@ -325,7 +365,7 @@ function moveDrag(e){
     if(dragging){
 
         const pos =
-        touchPos(e);
+        getPos(e);
 
         dragging.x = pos.x;
         dragging.y = pos.y;
@@ -364,18 +404,30 @@ function endDrag(){
                 dragging.index
             ].used = true;
 
+            const cleared =
             clearLines();
+
+            if(cleared){
+
+                combo++;
+
+            }else{
+
+                combo = 0;
+            }
+
+            updateUI();
 
             updatePhrase();
 
-            checkNewPieces();
+            checkPieces();
         }
 
         dragging = null;
     }
 }
 
-function checkNewPieces(){
+function checkPieces(){
 
     let allUsed = true;
 
@@ -392,6 +444,44 @@ function checkNewPieces(){
         pieces =
         generatePieces();
     }
+
+    checkGameOver();
+}
+
+function checkGameOver(){
+
+    for(let piece of pieces){
+
+        if(piece.used) continue;
+
+        for(let y=0;y<GRID;y++){
+
+            for(let x=0;x<GRID;x++){
+
+                if(
+                    canPlace(
+                        piece,
+                        x,
+                        y
+                    )
+                ){
+
+                    return;
+                }
+            }
+        }
+    }
+
+    setTimeout(()=>{
+
+        alert(
+        "Fim de jogo ❤️\nPontuação: "
+        + score
+        );
+
+        location.reload();
+
+    },300);
 }
 
 canvas.addEventListener(
@@ -464,6 +554,8 @@ function canPlace(piece,gx,gy){
 
 function placePiece(piece,gx,gy){
 
+    let points = 0;
+
     for(let y=0;
         y<piece.shape.length;
         y++){
@@ -476,12 +568,20 @@ function placePiece(piece,gx,gy){
 
                 board[gy+y][gx+x] =
                 piece.color;
+
+                points++;
             }
         }
     }
+
+    score += points;
 }
 
 function clearLines(){
+
+    let cleared = false;
+
+    // linhas
 
     for(let y=0;y<GRID;y++){
 
@@ -497,14 +597,18 @@ function clearLines(){
 
         if(full){
 
+            cleared = true;
+
             for(let x=0;x<GRID;x++){
 
                 board[y][x] = null;
             }
 
-            score += 10;
+            score += 80 + (combo*20);
         }
     }
+
+    // colunas
 
     for(let x=0;x<GRID;x++){
 
@@ -520,19 +624,18 @@ function clearLines(){
 
         if(full){
 
+            cleared = true;
+
             for(let y=0;y<GRID;y++){
 
                 board[y][x] = null;
             }
 
-            score += 10;
+            score += 80 + (combo*20);
         }
     }
 
-    document.getElementById(
-        "score"
-    ).innerText =
-    "👑 " + score;
+    return cleared;
 }
 
 function updatePhrase(){
@@ -546,6 +649,19 @@ function updatePhrase(){
             Math.random()*phrases.length
         )
     ];
+}
+
+function updateUI(){
+
+    document.getElementById(
+        "score"
+    ).innerText =
+    "👑 " + score;
+
+    document.getElementById(
+        "combo"
+    ).innerText =
+    "🔥 Combo x" + combo;
 }
 
 function roundRect(
@@ -633,8 +749,7 @@ function drawBoard(){
 function drawPiece(
 piece,
 px,
-py,
-drag=false
+py
 ){
 
     for(let y=0;
@@ -687,7 +802,7 @@ function drawPieces(){
 
             35 + index*(CELL*2.5),
 
-            canvas.height-130
+            canvas.height-140
         );
     });
 
@@ -697,11 +812,9 @@ function drawPieces(){
 
             dragging.piece,
 
-            dragging.x-30,
+            dragging.x-25,
 
-            dragging.y-30,
-
-            true
+            dragging.y-25
         );
     }
 }
