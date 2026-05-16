@@ -2,7 +2,14 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no"
+/>
+
 <title>Love Block ❤️</title>
 
 <style>
@@ -11,136 +18,158 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:Arial;
+
+    -webkit-tap-highlight-color:transparent;
 }
 
 body{
 
     overflow:hidden;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    touch-action:none;
+
+    background:linear-gradient(
+        180deg,
+        #6676ff,
+        #91a4ff
+    );
+
+    font-family:Arial;
 
     height:100vh;
-
-    background:linear-gradient(180deg,#6576ff,#8ea2ff);
-}
-
-#gameContainer{
-
-    position:relative;
-
-    width:650px;
-    height:950px;
 }
 
 canvas{
 
-    background:transparent;
+    position:absolute;
+
+    inset:0;
+
+    width:100%;
+    height:100%;
 }
 
-#topUI{
+#top{
 
     position:absolute;
 
-    top:20px;
+    top:15px;
 
     width:100%;
 
     display:flex;
+
     flex-direction:column;
+
     align-items:center;
 
-    z-index:20;
+    z-index:10;
 }
 
-#julia{
+#photo{
 
-    width:120px;
-    height:120px;
+    width:95px;
+    height:95px;
 
     border-radius:50%;
 
-    border:5px solid white;
-
     object-fit:cover;
 
-    box-shadow:0 0 25px hotpink;
+    border:4px solid white;
+
+    box-shadow:0 0 20px hotpink;
 }
 
 #speech{
 
-    margin-top:15px;
+    margin-top:10px;
 
     background:white;
 
+    padding:12px 22px;
+
+    border-radius:20px;
+
     color:#ff1493;
 
-    padding:15px 30px;
+    font-size:18px;
 
-    border-radius:25px;
+    font-weight:bold;
 
-    font-size:28px;
-
-    box-shadow:0 0 20px rgba(0,0,0,0.2);
+    box-shadow:0 0 15px rgba(0,0,0,0.2);
 }
 
 #score{
 
     position:absolute;
 
-    top:40px;
-    left:30px;
+    top:25px;
+    left:20px;
 
     color:#ffd54f;
 
-    font-size:45px;
+    font-size:30px;
 
     font-weight:bold;
 
-    text-shadow:0 0 10px rgba(0,0,0,0.5);
+    z-index:20;
 
-    z-index:30;
+    text-shadow:0 0 10px rgba(0,0,0,0.5);
 }
 
 </style>
 </head>
 <body>
 
-<div id="gameContainer">
+<div id="score">
+👑 0
+</div>
 
-    <div id="score">
-        👑 0
-    </div>
+<div id="top">
 
-    <div id="topUI">
+<img src="julia.png" id="photo">
 
-        <img src="julia.png" id="julia">
-
-        <div id="speech">
-            Te amo ❤️
-        </div>
-
-    </div>
-
-    <canvas id="game" width="650" height="950"></canvas>
+<div id="speech">
+Te amo ❤️
+</div>
 
 </div>
 
+<canvas id="game"></canvas>
+
 <script>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas =
+document.getElementById("game");
 
-const GRID = 10;
+const ctx =
+canvas.getContext("2d");
 
-const CELL = 58;
+function resize(){
 
-const boardX = 35;
-const boardY = 220;
+    canvas.width =
+    window.innerWidth;
 
-let score = 0;
+    canvas.height =
+    window.innerHeight;
+}
+
+resize();
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
+const GRID = 8;
+
+let CELL =
+Math.min(window.innerWidth*0.11,70);
+
+let boardX =
+(window.innerWidth-(CELL*GRID))/2;
+
+let boardY = 180;
 
 const colors = [
 
@@ -151,17 +180,20 @@ const colors = [
 
 const phrases = [
 
-    "Te amo ❤️",
-    "Minha baixinha ❤️",
-    "Morena do Daniel ❤️",
-    "Você é perfeita ❤️",
-    "Meu amor ❤️",
-    "Linda demais ❤️",
-    "Você é minha paz ❤️",
-    "Meu coração é seu ❤️",
-    "Você me faz feliz ❤️",
-    "Quero você pra sempre ❤️"
+"Te amo ❤️",
+"Minha baixinha ❤️",
+"Morena do Daniel ❤️",
+"Você é perfeita ❤️",
+"Meu amor ❤️",
+"Linda demais ❤️",
+"Você me faz feliz ❤️",
+"Meu coração é seu ❤️",
+"Você é minha princesa ❤️",
+"Quero você pra sempre ❤️"
+
 ];
+
+let score = 0;
 
 const board = [];
 
@@ -178,7 +210,9 @@ for(let y=0;y<GRID;y++){
 function randomColor(){
 
     return colors[
-        Math.floor(Math.random()*colors.length)
+        Math.floor(
+            Math.random()*colors.length
+        )
     ];
 }
 
@@ -206,7 +240,9 @@ function randomPiece(){
     return {
 
         shape:pieces[
-            Math.floor(Math.random()*pieces.length)
+            Math.floor(
+                Math.random()*pieces.length
+            )
         ],
 
         color:randomColor()
@@ -222,80 +258,98 @@ let pieces = [
 
 let dragging = null;
 
-canvas.addEventListener("mousedown", startDrag);
+function touchPos(e){
 
-canvas.addEventListener("mousemove", drag);
+    const rect =
+    canvas.getBoundingClientRect();
 
-canvas.addEventListener("mouseup", drop);
+    return {
+
+        x:e.touches
+        ? e.touches[0].clientX-rect.left
+        : e.clientX-rect.left,
+
+        y:e.touches
+        ? e.touches[0].clientY-rect.top
+        : e.clientY-rect.top
+    };
+}
 
 function startDrag(e){
 
-    const rect = canvas.getBoundingClientRect();
-
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+    const pos = touchPos(e);
 
     pieces.forEach((piece,index)=>{
 
-        const px = 90 + index*180;
-        const py = 820;
+        const px =
+        40 + index*(CELL*2.7);
+
+        const py =
+        canvas.height-160;
 
         if(
 
-            mx > px &&
-            mx < px+120 &&
+            pos.x > px &&
+            pos.x < px+140 &&
 
-            my > py &&
-            my < py+120
+            pos.y > py &&
+            pos.y < py+140
         ){
 
             dragging = {
 
-                piece:piece,
-                index:index,
-                x:mx,
-                y:my
+                piece,
+                index,
+
+                x:pos.x,
+                y:pos.y
             };
         }
     });
 }
 
-function drag(e){
+function moveDrag(e){
 
     if(dragging){
 
-        const rect = canvas.getBoundingClientRect();
+        const pos = touchPos(e);
 
-        dragging.x = e.clientX - rect.left;
-        dragging.y = e.clientY - rect.top;
+        dragging.x = pos.x;
+        dragging.y = pos.y;
     }
 }
 
-function drop(){
+function endDrag(){
 
     if(dragging){
 
-        const gridX =
-        Math.floor((dragging.x-boardX)/CELL);
+        const gx =
+        Math.floor(
+            (dragging.x-boardX)/CELL
+        );
 
-        const gridY =
-        Math.floor((dragging.y-boardY)/CELL);
+        const gy =
+        Math.floor(
+            (dragging.y-boardY)/CELL
+        );
 
-        if(canPlace(
-
-            dragging.piece,
-            gridX,
-            gridY
-        )){
+        if(
+            canPlace(
+                dragging.piece,
+                gx,
+                gy
+            )
+        ){
 
             placePiece(
-
                 dragging.piece,
-                gridX,
-                gridY
+                gx,
+                gy
             );
 
-            pieces[dragging.index] = randomPiece();
+            pieces[
+                dragging.index
+            ] = randomPiece();
 
             clearLines();
 
@@ -306,11 +360,45 @@ function drop(){
     }
 }
 
+canvas.addEventListener(
+"touchstart",
+startDrag
+);
+
+canvas.addEventListener(
+"touchmove",
+moveDrag
+);
+
+canvas.addEventListener(
+"touchend",
+endDrag
+);
+
+canvas.addEventListener(
+"mousedown",
+startDrag
+);
+
+canvas.addEventListener(
+"mousemove",
+moveDrag
+);
+
+canvas.addEventListener(
+"mouseup",
+endDrag
+);
+
 function canPlace(piece,gx,gy){
 
-    for(let y=0;y<piece.shape.length;y++){
+    for(let y=0;
+        y<piece.shape.length;
+        y++){
 
-        for(let x=0;x<piece.shape[y].length;x++){
+        for(let x=0;
+            x<piece.shape[y].length;
+            x++){
 
             if(piece.shape[y][x]){
 
@@ -321,6 +409,7 @@ function canPlace(piece,gx,gy){
 
                     bx < 0 ||
                     by < 0 ||
+
                     bx >= GRID ||
                     by >= GRID
                 ){
@@ -341,21 +430,24 @@ function canPlace(piece,gx,gy){
 
 function placePiece(piece,gx,gy){
 
-    for(let y=0;y<piece.shape.length;y++){
+    for(let y=0;
+        y<piece.shape.length;
+        y++){
 
-        for(let x=0;x<piece.shape[y].length;x++){
+        for(let x=0;
+            x<piece.shape[y].length;
+            x++){
 
             if(piece.shape[y][x]){
 
-                board[gy+y][gx+x] = piece.color;
+                board[gy+y][gx+x] =
+                piece.color;
             }
         }
     }
 }
 
 function clearLines(){
-
-    // linhas
 
     for(let y=0;y<GRID;y++){
 
@@ -380,8 +472,6 @@ function clearLines(){
         }
     }
 
-    // colunas
-
     for(let x=0;x<GRID;x++){
 
         let full = true;
@@ -405,17 +495,58 @@ function clearLines(){
         }
     }
 
-    document.getElementById("score").innerText =
+    document.getElementById(
+        "score"
+    ).innerText =
     "👑 " + score;
 }
 
 function updatePhrase(){
 
-    document.getElementById("speech").innerText =
+    document.getElementById(
+        "speech"
+    ).innerText =
 
     phrases[
-        Math.floor(Math.random()*phrases.length)
+        Math.floor(
+            Math.random()*phrases.length
+        )
     ];
+}
+
+function roundRect(x,y,w,h,r,color){
+
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+
+    ctx.moveTo(x+r,y);
+
+    ctx.lineTo(x+w-r,y);
+
+    ctx.quadraticCurveTo(
+        x+w,y,x+w,y+r
+    );
+
+    ctx.lineTo(x+w,y+h-r);
+
+    ctx.quadraticCurveTo(
+        x+w,y+h,x+w-r,y+h
+    );
+
+    ctx.lineTo(x+r,y+h);
+
+    ctx.quadraticCurveTo(
+        x,y+h,x,y+h-r
+    );
+
+    ctx.lineTo(x,y+r);
+
+    ctx.quadraticCurveTo(
+        x,y,x+r,y
+    );
+
+    ctx.fill();
 }
 
 function drawBoard(){
@@ -424,46 +555,79 @@ function drawBoard(){
 
         for(let x=0;x<GRID;x++){
 
-            const px = boardX + x*CELL;
-            const py = boardY + y*CELL;
+            const px =
+            boardX + x*CELL;
 
-            // fundo
-
-            ctx.fillStyle = "#1f2c6d";
+            const py =
+            boardY + y*CELL;
 
             roundRect(
                 px,
                 py,
                 CELL-4,
                 CELL-4,
-                12
+                12,
+                "#1d2766"
             );
 
-            // bloco
-
             if(board[y][x]){
-
-                ctx.fillStyle = board[y][x];
 
                 roundRect(
                     px+2,
                     py+2,
                     CELL-8,
                     CELL-8,
-                    12
+                    12,
+                    board[y][x]
                 );
-
-                // brilho
-
-                ctx.fillStyle =
-                "rgba(255,255,255,0.25)";
 
                 roundRect(
                     px+7,
                     py+7,
                     CELL-20,
                     12,
-                    8
+                    8,
+                    "rgba(255,255,255,0.25)"
+                );
+            }
+        }
+    }
+}
+
+function drawPiece(piece,px,py){
+
+    for(let y=0;
+        y<piece.shape.length;
+        y++){
+
+        for(let x=0;
+            x<piece.shape[y].length;
+            x++){
+
+            if(piece.shape[y][x]){
+
+                const dx =
+                px + x*CELL;
+
+                const dy =
+                py + y*CELL;
+
+                roundRect(
+                    dx,
+                    dy,
+                    CELL-8,
+                    CELL-8,
+                    12,
+                    piece.color
+                );
+
+                roundRect(
+                    dx+5,
+                    dy+5,
+                    CELL-20,
+                    10,
+                    8,
+                    "rgba(255,255,255,0.25)"
                 );
             }
         }
@@ -474,13 +638,13 @@ function drawPieces(){
 
     pieces.forEach((piece,index)=>{
 
-        const startX = 90 + index*180;
-        const startY = 820;
-
         drawPiece(
+
             piece,
-            startX,
-            startY
+
+            40 + index*(CELL*2.7),
+
+            canvas.height-160
         );
     });
 
@@ -490,104 +654,30 @@ function drawPieces(){
 
             dragging.piece,
 
-            dragging.x,
-            dragging.y,
+            dragging.x-30,
 
-            true
+            dragging.y-30
         );
     }
 }
 
-function drawPiece(piece,px,py,center=false){
+function loop(){
 
-    for(let y=0;y<piece.shape.length;y++){
-
-        for(let x=0;x<piece.shape[y].length;x++){
-
-            if(piece.shape[y][x]){
-
-                let drawX =
-                px + x*CELL;
-
-                let drawY =
-                py + y*CELL;
-
-                if(center){
-
-                    drawX -= 40;
-                    drawY -= 40;
-                }
-
-                ctx.fillStyle = piece.color;
-
-                roundRect(
-
-                    drawX,
-                    drawY,
-
-                    CELL-8,
-                    CELL-8,
-
-                    12
-                );
-
-                ctx.fillStyle =
-                "rgba(255,255,255,0.25)";
-
-                roundRect(
-
-                    drawX+5,
-                    drawY+5,
-
-                    CELL-20,
-                    10,
-
-                    8
-                );
-            }
-        }
-    }
-}
-
-function roundRect(x,y,w,h,r){
-
-    ctx.beginPath();
-
-    ctx.moveTo(x+r,y);
-
-    ctx.lineTo(x+w-r,y);
-
-    ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-
-    ctx.lineTo(x+w,y+h-r);
-
-    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-
-    ctx.lineTo(x+r,y+h);
-
-    ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-
-    ctx.lineTo(x,y+r);
-
-    ctx.quadraticCurveTo(x,y,x+r,y);
-
-    ctx.closePath();
-
-    ctx.fill();
-}
-
-function draw(){
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
     drawBoard();
 
     drawPieces();
 
-    requestAnimationFrame(draw);
+    requestAnimationFrame(loop);
 }
 
-draw();
+loop();
 
 </script>
 </body>
