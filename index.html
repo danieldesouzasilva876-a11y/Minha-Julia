@@ -21,16 +21,13 @@ user-scalable=no
     margin:0;
     padding:0;
     box-sizing:border-box;
-
     -webkit-tap-highlight-color:transparent;
 }
 
 body{
 
     overflow:hidden;
-
     touch-action:none;
-
     font-family:Arial;
 
     background:
@@ -42,32 +39,6 @@ body{
     );
 
     height:100vh;
-
-    padding-bottom:20px;
-}
-
-/* ===== FUNDO ===== */
-
-#bgGlow{
-
-    position:absolute;
-
-    inset:0;
-
-    pointer-events:none;
-
-    background:
-    radial-gradient(
-        circle at 20% 20%,
-        rgba(255,255,255,0.12),
-        transparent 30%
-    ),
-
-    radial-gradient(
-        circle at 80% 40%,
-        rgba(255,255,255,0.08),
-        transparent 30%
-    );
 }
 
 /* ===== MENU ===== */
@@ -75,17 +46,12 @@ body{
 #menu{
 
     position:fixed;
-
     inset:0;
 
-    z-index:999;
-
     display:flex;
-
     flex-direction:column;
 
     align-items:center;
-
     justify-content:center;
 
     background:
@@ -95,46 +61,40 @@ body{
         #8092ff
     );
 
-    overflow:hidden;
+    z-index:999;
 }
 
 #menuGirl{
 
-    width:230px;
-
-    z-index:5;
+    width:220px;
 
     animation:floatGirl 4s ease-in-out infinite;
 
     filter:
-    drop-shadow(0 0 30px rgba(255,105,180,0.45));
+    drop-shadow(0 0 25px rgba(255,105,180,0.4));
 }
 
 #title{
 
-    margin-top:10px;
-
     color:white;
 
-    font-size:40px;
+    font-size:38px;
 
     font-weight:bold;
 
-    z-index:5;
+    margin-top:15px;
 
     text-shadow:
-    0 0 15px rgba(0,0,0,0.3);
+    0 0 20px rgba(0,0,0,0.25);
 }
 
 #subtitle{
 
     color:white;
 
-    margin-top:10px;
+    margin-top:8px;
 
     font-size:16px;
-
-    z-index:5;
 
     opacity:0.95;
 }
@@ -153,14 +113,12 @@ body{
 
     font-weight:bold;
 
-    padding:18px 50px;
+    padding:18px 45px;
 
     border-radius:40px;
 
-    z-index:5;
-
     box-shadow:
-    0 10px 30px rgba(0,0,0,0.2);
+    0 12px 25px rgba(0,0,0,0.25);
 
     transition:0.2s;
 }
@@ -176,22 +134,22 @@ body{
 
     position:absolute;
 
-    left:-120px;
+    right:-15px;
 
-    top:10px;
+    top:15px;
 
-    width:230px;
+    width:120px;
 
     z-index:5;
 
     pointer-events:none;
 
-    opacity:0.96;
+    opacity:0.95;
 
     object-fit:contain;
 
     filter:
-    drop-shadow(0 0 18px rgba(255,105,180,0.22));
+    drop-shadow(0 0 12px rgba(255,105,180,0.18));
 
     animation:floatGirl 4s ease-in-out infinite;
 }
@@ -217,18 +175,21 @@ body{
 
     position:absolute;
 
-    top:135px;
-    left:70px;
+    top:120px;
+
+    right:15px;
+
+    left:auto;
 
     background:white;
 
     color:#ff1493;
 
-    padding:12px 18px;
+    padding:10px 16px;
 
-    border-radius:20px;
+    border-radius:18px;
 
-    font-size:15px;
+    font-size:14px;
 
     font-weight:bold;
 
@@ -255,32 +216,33 @@ body{
     scale(1);
 }
 
-/* ===== HUD ===== */
+/* ===== SCORE ===== */
 
 #score{
 
     position:absolute;
 
-    top:20px;
-    right:18px;
+    top:18px;
+    left:15px;
 
     color:#ffd54f;
 
-    font-size:30px;
+    font-size:28px;
 
     font-weight:bold;
 
-    z-index:20;
+    z-index:30;
 
-    text-shadow:0 0 10px rgba(0,0,0,0.35);
+    text-shadow:
+    0 0 12px rgba(0,0,0,0.25);
 }
 
 #combo{
 
     position:absolute;
 
-    top:62px;
-    right:18px;
+    top:58px;
+    left:15px;
 
     color:white;
 
@@ -288,17 +250,17 @@ body{
 
     font-weight:bold;
 
-    z-index:20;
-
-    text-shadow:0 0 10px rgba(0,0,0,0.35);
+    z-index:30;
 }
+
+/* ===== COMBO TEXT ===== */
 
 #comboText{
 
     position:absolute;
 
     left:50%;
-    top:45%;
+    top:50%;
 
     transform:
     translate(-50%,-50%)
@@ -315,7 +277,7 @@ body{
     z-index:999;
 
     text-shadow:
-    0 0 25px rgba(255,255,255,0.5);
+    0 0 25px rgba(255,255,255,0.45);
 
     transition:0.35s;
 }
@@ -339,15 +301,11 @@ canvas{
 
     width:100%;
     height:100%;
-
-    image-rendering:auto;
 }
 
 </style>
 </head>
 <body>
-
-<div id="bgGlow"></div>
 
 <!-- MENU -->
 
@@ -439,16 +397,18 @@ const GRID = 8;
 
 let CELL =
 Math.min(
-window.innerWidth*0.094,
-50
+window.innerWidth*0.09,
+48
 );
 
-/* TABULEIRO MAIS PRA DIREITA */
+/* CENTRALIZADO */
 
 let boardX =
-(window.innerWidth-(CELL*GRID))/2 + 35;
+(window.innerWidth-(CELL*GRID))/2;
 
-let boardY = 150;
+/* MAIS BAIXO */
+
+let boardY = 210;
 
 /* ===== SCORE ===== */
 
@@ -456,7 +416,7 @@ let score = 0;
 
 let combo = 0;
 
-/* ===== BOARD ===== */
+/* ===== TABULEIRO ===== */
 
 const board = [];
 
@@ -505,11 +465,15 @@ const SHAPES = [
 [[1]],
 [[1,1]],
 [[1],[1]],
+
 [[1,1,1]],
 [[1],[1],[1]],
+
 [[1,1],[1,1]],
+
 [[1,1,1,1]],
 [[1],[1],[1],[1]],
+
 [[1,1,1,1,1]],
 [[1],[1],[1],[1],[1]],
 
@@ -574,17 +538,13 @@ function generatePieces(){
 let pieces =
 generatePieces();
 
-/* ===== HIGHLIGHT ===== */
-
 let highlightCells = [];
 
-/* ===== PARTICULAS ===== */
+let dragging = null;
 
 let particles = [];
 
-/* ===== DRAG ===== */
-
-let dragging = null;
+/* ===== POS ===== */
 
 function getPos(e){
 
@@ -603,6 +563,8 @@ function getPos(e){
     };
 }
 
+/* ===== DRAG ===== */
+
 function startDrag(e){
 
     const pos =
@@ -613,10 +575,10 @@ function startDrag(e){
         if(piece.used) return;
 
         const px =
-        25 + index*(CELL*2.8);
+        25 + index*(CELL*2.9);
 
         const py =
-        canvas.height-145;
+        canvas.height-150;
 
         if(
 
@@ -625,6 +587,7 @@ function startDrag(e){
 
             pos.y > py &&
             pos.y < py+180
+
         ){
 
             dragging = {
@@ -808,7 +771,7 @@ function canPlace(piece,gx,gy){
     return true;
 }
 
-/* ===== COLOCAR ===== */
+/* ===== PLACE ===== */
 
 function placePiece(piece,gx,gy){
 
@@ -835,7 +798,7 @@ function placePiece(piece,gx,gy){
     score += points;
 }
 
-/* ===== LIMPAR ===== */
+/* ===== CLEAR ===== */
 
 function clearLines(){
 
@@ -862,7 +825,7 @@ function clearLines(){
                 createParticles(
                     x,
                     y,
-                    "#ffffff"
+                    "#fff"
                 );
 
                 board[y][x] = null;
@@ -894,7 +857,7 @@ function clearLines(){
                 createParticles(
                     x,
                     y,
-                    "#ffffff"
+                    "#fff"
                 );
 
                 board[y][x] = null;
@@ -908,7 +871,7 @@ function clearLines(){
     return cleared;
 }
 
-/* ===== PARTICULAS ===== */
+/* ===== PARTICLES ===== */
 
 function createParticles(
 gx,
@@ -1006,7 +969,7 @@ function updateUI(){
     "🔥 Combo x" + combo;
 }
 
-/* ===== NOVAS PEÇAS ===== */
+/* ===== PEÇAS ===== */
 
 function checkPieces(){
 
@@ -1027,7 +990,7 @@ function checkPieces(){
     }
 }
 
-/* ===== DESENHAR ===== */
+/* ===== DESENHO ===== */
 
 function roundRect(
 x,y,w,h,r,color
@@ -1189,9 +1152,9 @@ function drawPieces(){
 
             piece,
 
-            25 + index*(CELL*2.8),
+            25 + index*(CELL*2.9),
 
-            canvas.height-145
+            canvas.height-150
         );
     });
 
@@ -1200,9 +1163,9 @@ function drawPieces(){
         ctx.save();
 
         ctx.shadowColor =
-        "rgba(255,255,255,0.4)";
+        "rgba(255,255,255,0.5)";
 
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 30;
 
         drawPiece(
 
@@ -1216,8 +1179,6 @@ function drawPieces(){
         ctx.restore();
     }
 }
-
-/* ===== PARTICULAS ===== */
 
 function drawParticles(){
 
