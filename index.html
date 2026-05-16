@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>LOVE BLOCK BLAST ❤️ ULTRA PRO MAX</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
@@ -22,18 +23,17 @@ box-sizing:border-box;
 --purple:#9b59f5;
 --blue:#4cc9f0;
 --yellow:#ffd60a;
---bg:#130226;
 }
 
 body{
 overflow:hidden;
-background:linear-gradient(180deg,#120220,#22053b,#130226);
 font-family:'Nunito',sans-serif;
+background:#140222;
 touch-action:none;
 user-select:none;
 }
 
-/* ===================== BACKGROUND ===================== */
+/* ================= BG ================= */
 
 #bg{
 position:fixed;
@@ -57,112 +57,10 @@ animation:aurora 8s ease infinite alternate;
 
 @keyframes aurora{
 0%{transform:scale(1);}
-100%{transform:scale(1.1);}
+100%{transform:scale(1.08);}
 }
 
-/* ===================== HUD ===================== */
-
-#hud{
-position:fixed;
-top:0;
-left:0;
-right:0;
-padding:14px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-z-index:50;
-
-background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
-}
-
-.hudBox{
-background:rgba(255,255,255,.08);
-backdrop-filter:blur(10px);
-border:1px solid rgba(255,255,255,.1);
-
-padding:12px 18px;
-border-radius:20px;
-
-box-shadow:
-0 0 20px rgba(255,0,140,.12),
-inset 0 0 12px rgba(255,255,255,.05);
-}
-
-.hudTitle{
-font-size:11px;
-letter-spacing:2px;
-text-transform:uppercase;
-color:rgba(255,255,255,.5);
-font-weight:800;
-}
-
-.hudValue{
-font-size:28px;
-font-weight:900;
-color:white;
-text-shadow:0 0 12px rgba(255,255,255,.3);
-}
-
-/* ===================== GIRL ===================== */
-
-#girl{
-position:fixed;
-top:0;
-right:-10px;
-width:115px;
-z-index:40;
-pointer-events:none;
-
-filter:
-drop-shadow(0 0 25px rgba(255,0,120,.5))
-drop-shadow(0 0 50px rgba(255,0,180,.3));
-
-animation:floatGirl 4s ease infinite;
-}
-
-@keyframes floatGirl{
-0%{transform:translateY(0px);}
-50%{transform:translateY(8px);}
-100%{transform:translateY(0px);}
-}
-
-/* ===================== SPEECH ===================== */
-
-#speech{
-position:fixed;
-right:108px;
-top:20px;
-z-index:60;
-
-background:white;
-padding:12px 16px;
-border-radius:18px 18px 4px 18px;
-
-font-weight:800;
-font-size:14px;
-color:var(--pink);
-
-opacity:0;
-transform:scale(.8);
-
-transition:.3s;
-}
-
-#speech.show{
-opacity:1;
-transform:scale(1);
-}
-
-/* ===================== GAME ===================== */
-
-#game{
-position:fixed;
-inset:0;
-z-index:10;
-}
-
-/* ===================== MENU ===================== */
+/* ================= MENU ================= */
 
 #menu{
 position:fixed;
@@ -175,61 +73,62 @@ align-items:center;
 justify-content:center;
 
 background:
-radial-gradient(circle at center, rgba(255,0,120,.2), transparent 50%),
-linear-gradient(180deg,#140223,#22053d,#140223);
+radial-gradient(circle at center, rgba(255,0,120,.18), transparent 50%),
+linear-gradient(180deg,#140222,#250544,#140222);
 }
 
 .menuGirl{
-width:170px;
+width:180px;
 
 filter:
 drop-shadow(0 0 25px rgba(255,0,120,.6))
 drop-shadow(0 0 60px rgba(255,0,180,.3));
 
-animation:menuFloat 4s ease infinite;
+animation:floatGirl 4s ease infinite;
 }
 
-@keyframes menuFloat{
+@keyframes floatGirl{
 0%{transform:translateY(0);}
-50%{transform:translateY(10px);}
+50%{transform:translateY(8px);}
 100%{transform:translateY(0);}
 }
 
 .menuTitle{
-margin-top:10px;
+margin-top:14px;
 
-font-family:'Pacifico',cursive;
 font-size:42px;
+font-family:'Pacifico',cursive;
 color:white;
 
 text-shadow:
-0 0 18px rgba(255,0,120,.7),
-0 0 40px rgba(255,0,120,.4);
+0 0 18px rgba(255,0,120,.8),
+0 0 45px rgba(255,0,180,.5);
 }
 
 .menuSub{
-margin-top:10px;
+margin-top:8px;
 font-size:14px;
-color:rgba(255,255,255,.6);
+color:rgba(255,255,255,.55);
 }
 
 .playBtn{
 margin-top:25px;
 
 border:none;
-padding:16px 48px;
+padding:16px 50px;
 border-radius:50px;
 
 font-size:22px;
 font-weight:900;
-color:white;
 
 background:
 linear-gradient(135deg,var(--pink),var(--purple));
 
+color:white;
+
 box-shadow:
-0 12px 35px rgba(255,0,140,.45),
-0 0 20px rgba(255,0,180,.3);
+0 10px 30px rgba(255,0,140,.4),
+0 0 25px rgba(255,0,180,.25);
 
 cursor:pointer;
 }
@@ -238,28 +137,128 @@ cursor:pointer;
 transform:scale(.95);
 }
 
-/* ===================== COMBO ===================== */
+/* ================= HUD ================= */
+
+#hud{
+position:fixed;
+top:0;
+left:0;
+right:0;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:14px;
+z-index:50;
+
+background:
+linear-gradient(180deg,rgba(0,0,0,.55),transparent);
+}
+
+.hudBox{
+padding:12px 18px;
+
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.1);
+
+backdrop-filter:blur(10px);
+
+border-radius:20px;
+
+box-shadow:
+0 0 20px rgba(255,0,140,.12),
+inset 0 0 12px rgba(255,255,255,.05);
+}
+
+.hudLabel{
+font-size:11px;
+font-weight:800;
+letter-spacing:2px;
+text-transform:uppercase;
+color:rgba(255,255,255,.45);
+}
+
+.hudValue{
+font-size:28px;
+font-weight:900;
+color:white;
+}
+
+/* ================= GIRL ================= */
+
+#girl{
+position:fixed;
+top:0;
+right:-10px;
+
+width:120px;
+
+z-index:60;
+pointer-events:none;
+
+filter:
+drop-shadow(0 0 20px rgba(255,0,120,.6))
+drop-shadow(0 0 40px rgba(255,0,180,.35));
+
+animation:floatGirl 4s ease infinite;
+}
+
+/* ================= SPEECH ================= */
+
+#speech{
+position:fixed;
+right:110px;
+top:20px;
+
+background:white;
+padding:12px 16px;
+
+border-radius:18px 18px 4px 18px;
+
+font-weight:800;
+font-size:14px;
+
+color:var(--pink);
+
+opacity:0;
+transform:scale(.8);
+
+transition:.3s;
+
+z-index:70;
+}
+
+#speech.show{
+opacity:1;
+transform:scale(1);
+}
+
+/* ================= COMBO ================= */
 
 #comboText{
 position:fixed;
 left:50%;
 top:40%;
+
 transform:translate(-50%,-50%) scale(.4);
 
-font-family:'Pacifico',cursive;
 font-size:58px;
+font-family:'Pacifico',cursive;
 
 color:white;
 
 text-shadow:
 0 0 20px rgba(255,0,120,.8),
-0 0 40px rgba(255,0,180,.6);
+0 0 50px rgba(255,0,180,.6);
 
 opacity:0;
+
 pointer-events:none;
-z-index:500;
 
 transition:.25s;
+
+z-index:500;
 }
 
 #comboText.show{
@@ -267,34 +266,37 @@ opacity:1;
 transform:translate(-50%,-50%) scale(1);
 }
 
-/* ===================== TRAY ===================== */
+/* ================= TRAY ================= */
 
 #tray{
 position:fixed;
 left:0;
 right:0;
 bottom:0;
+
 height:170px;
 
 background:
-linear-gradient(0deg,rgba(0,0,0,.75),transparent);
+linear-gradient(0deg,rgba(0,0,0,.8),transparent);
 
 z-index:20;
 }
 
-/* ===================== GAME OVER ===================== */
+/* ================= GAME OVER ================= */
 
 #gameOver{
 position:fixed;
 inset:0;
-background:rgba(0,0,0,.7);
-backdrop-filter:blur(10px);
 
 display:none;
 align-items:center;
 justify-content:center;
 
-z-index:900;
+background:rgba(0,0,0,.7);
+
+backdrop-filter:blur(10px);
+
+z-index:999;
 }
 
 #gameOver.show{
@@ -306,6 +308,7 @@ width:90%;
 max-width:330px;
 
 padding:30px;
+
 border-radius:30px;
 
 background:
@@ -321,24 +324,28 @@ box-shadow:
 }
 
 .goTitle{
-font-size:36px;
+font-size:34px;
 font-family:'Pacifico',cursive;
 color:white;
 }
 
 .goScore{
-margin-top:15px;
+margin-top:10px;
+
 font-size:58px;
 font-weight:900;
+
 color:var(--yellow);
 }
 
 .goBtn{
 margin-top:20px;
 
-border:none;
 width:100%;
+
+border:none;
 padding:15px;
+
 border-radius:50px;
 
 font-size:18px;
@@ -350,15 +357,25 @@ linear-gradient(135deg,var(--pink),var(--purple));
 color:white;
 }
 
+/* ================= GAME ================= */
+
+#game{
+position:fixed;
+inset:0;
+z-index:10;
+}
+
 </style>
 </head>
 
 <body>
 
 <canvas id="bg"></canvas>
+
 <div class="aurora"></div>
 
 <!-- MENU -->
+
 <div id="menu">
 
 <img src="julia.png" class="menuGirl">
@@ -378,15 +395,16 @@ Feito com amor por Daniel ❤️
 </div>
 
 <!-- HUD -->
+
 <div id="hud">
 
 <div class="hudBox">
-<div class="hudTitle">Pontos</div>
+<div class="hudLabel">Pontos</div>
 <div class="hudValue" id="scoreText">0</div>
 </div>
 
 <div class="hudBox">
-<div class="hudTitle">Combo</div>
+<div class="hudLabel">Combo</div>
 <div class="hudValue" id="comboHud">x0</div>
 </div>
 
@@ -395,7 +413,7 @@ Feito com amor por Daniel ❤️
 <img src="julia.png" id="girl">
 
 <div id="speech">
-Você é perfeita ❤️
+Te amo ❤️
 </div>
 
 <div id="comboText">
@@ -430,7 +448,7 @@ Jogar Novamente
 
 <script>
 
-/* ===================== SETUP ===================== */
+/* ================= SETUP ================= */
 
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
@@ -444,7 +462,7 @@ let CELL=Math.min(innerWidth*.1,48);
 let boardX=(innerWidth-(GRID*CELL))/2;
 let boardY=160;
 
-/* ===================== STATE ===================== */
+/* ================= STATE ================= */
 
 let board=[];
 let particles=[];
@@ -458,7 +476,7 @@ let highlights=[];
 
 let gameRunning=false;
 
-/* ===================== COLORS ===================== */
+/* ================= COLORS ================= */
 
 const COLORS=[
 '#ff4d8d',
@@ -468,7 +486,7 @@ const COLORS=[
 '#9b59f5'
 ];
 
-/* ===================== SHAPES ===================== */
+/* ================= SHAPES ================= */
 
 const SHAPES=[
 [[1]],
@@ -485,7 +503,7 @@ function rand(a){
 return a[Math.floor(Math.random()*a.length)];
 }
 
-/* ===================== BOARD ===================== */
+/* ================= BOARD ================= */
 
 function resetBoard(){
 
@@ -505,7 +523,7 @@ board[y][x]=null;
 
 }
 
-/* ===================== PIECES ===================== */
+/* ================= PIECES ================= */
 
 function makePiece(){
 
@@ -527,7 +545,7 @@ makePiece()
 
 }
 
-/* ===================== INPUT ===================== */
+/* ================= INPUT ================= */
 
 function getPos(e){
 
@@ -635,6 +653,8 @@ gameOver();
 
 combo=0;
 
+updateUI();
+
 }
 
 dragging=null;
@@ -642,7 +662,7 @@ highlights=[];
 
 }
 
-/* ===================== LOGIC ===================== */
+/* ================= LOGIC ================= */
 
 function updateHighlight(){
 
@@ -763,7 +783,7 @@ return false;
 
 }
 
-/* ===================== PARTICLES ===================== */
+/* ================= PARTICLES ================= */
 
 function explode(gx,gy,color,count){
 
@@ -793,7 +813,7 @@ color
 
 }
 
-/* ===================== UI ===================== */
+/* ================= UI ================= */
 
 function updateUI(){
 
@@ -825,13 +845,11 @@ function showSpeech(){
 const speech=document.getElementById('speech');
 
 const msgs=[
-
 'Te amo ❤️',
 'Você é perfeita ❤️',
 'Minha baixinha ❤️',
 'Meu amor ❤️',
 'Você é tudo ❤️'
-
 ];
 
 speech.textContent=rand(msgs);
@@ -846,7 +864,7 @@ speech.classList.remove('show');
 
 }
 
-/* ===================== GAME OVER ===================== */
+/* ================= GAME OVER ================= */
 
 function gameOver(){
 
@@ -858,7 +876,7 @@ document.getElementById('gameOver').classList.add('show');
 
 }
 
-/* ===================== DRAW ===================== */
+/* ================= DRAW ================= */
 
 function rrect(x,y,w,h,r,c,glow){
 
@@ -1084,7 +1102,7 @@ particles.splice(i,1);
 
 }
 
-/* ===================== LOOP ===================== */
+/* ================= LOOP ================= */
 
 function loop(){
 
@@ -1101,7 +1119,7 @@ requestAnimationFrame(loop);
 
 loop();
 
-/* ===================== RESTART ===================== */
+/* ================= RESTART ================= */
 
 function restartGame(){
 
@@ -1120,7 +1138,7 @@ gameRunning=true;
 
 }
 
-/* ===================== EVENTS ===================== */
+/* ================= EVENTS ================= */
 
 canvas.addEventListener('mousedown',startDrag);
 canvas.addEventListener('mousemove',moveDrag);
@@ -1130,15 +1148,27 @@ canvas.addEventListener('touchstart',startDrag,{passive:false});
 canvas.addEventListener('touchmove',moveDrag,{passive:false});
 canvas.addEventListener('touchend',endDrag);
 
-/* ===================== START ===================== */
+/* ================= PLAY BUTTON FIX ================= */
 
 document.getElementById('playBtn').onclick=()=>{
 
 document.getElementById('menu').style.display='none';
 
-restartGame();
+gameRunning=true;
+
+document.getElementById('gameOver').classList.remove('show');
+
+score=0;
+combo=0;
+
+updateUI();
+
+resetBoard();
+createPieces();
 
 };
+
+/* ================= INIT ================= */
 
 resetBoard();
 createPieces();
