@@ -548,13 +548,30 @@ document.getElementById("playBtn").onclick = ()=>{
 
     gameStarted = true;
 
-    music.play();
+    music.play().catch(()=>{});
 };
 
+// fallback caso a imagem demore
+setTimeout(()=>{
 
+    if(!gameStarted){
+        draw();
+    }
+
+},500);
+
+// inicia o jogo corretamente
 playerImg.onload = ()=>{
     gameLoop();
-}
+};
+
+// fallback se imagem falhar
+playerImg.onerror = ()=>{
+
+    console.log("Imagem não carregou");
+
+    gameLoop();
+};
 
 </script>
 </body>
