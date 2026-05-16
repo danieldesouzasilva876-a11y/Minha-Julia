@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Super Júlia ❤️</title>
+<title>Corrida da Professora 📚</title>
 
 <style>
 
@@ -15,16 +15,33 @@
 
 body{
     overflow:hidden;
-    background:#111;
+    background:#87CEEB;
     font-family:Arial;
 }
 
 canvas{
     display:block;
-    background:linear-gradient(#87CEEB,#ffd6e8);
 }
 
-#startScreen{
+#ui{
+
+    position:absolute;
+
+    top:20px;
+    left:20px;
+
+    color:white;
+
+    z-index:10;
+
+    text-shadow:0 0 10px black;
+}
+
+#score{
+    font-size:35px;
+}
+
+#start{
 
     position:absolute;
 
@@ -43,93 +60,89 @@ canvas{
     z-index:100;
 }
 
-#startScreen h1{
+#start h1{
 
-    font-size:90px;
+    font-size:80px;
 
-    color:pink;
+    color:#ffe066;
 
-    text-shadow:0 0 25px hotpink;
+    text-shadow:0 0 20px orange;
 }
 
-#startBtn{
+#start button{
 
-    margin-top:35px;
+    margin-top:30px;
 
     border:none;
 
-    padding:20px 60px;
+    padding:18px 50px;
 
-    font-size:30px;
+    border-radius:20px;
 
-    border-radius:25px;
-
-    background:hotpink;
+    background:#ff9800;
 
     color:white;
+
+    font-size:28px;
 
     cursor:pointer;
 
-    box-shadow:0 0 25px hotpink;
+    box-shadow:0 0 20px orange;
 }
 
-#message{
+#gameOver{
 
     position:absolute;
 
-    top:40px;
-    left:50%;
+    width:100%;
+    height:100%;
 
-    transform:translateX(-50%);
-
-    background:white;
-
-    padding:18px 35px;
-
-    border-radius:25px;
-
-    color:#ff1493;
-
-    font-size:32px;
+    background:rgba(0,0,0,0.7);
 
     display:none;
-
-    z-index:20;
-
-    box-shadow:0 0 20px rgba(0,0,0,0.3);
-}
-
-#score{
-
-    position:absolute;
-
-    top:20px;
-    left:20px;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
 
     color:white;
 
-    font-size:35px;
+    z-index:200;
+}
 
-    z-index:10;
+#gameOver h1{
 
-    text-shadow:0 0 10px black;
+    font-size:70px;
+
+    color:red;
 }
 
 </style>
 </head>
 <body>
 
-<div id="startScreen">
+<div id="start">
 
-    <h1>SUPER JÚLIA ❤️</h1>
+    <h1>Corrida da Professora 📚</h1>
 
-    <button id="startBtn">JOGAR</button>
+    <p>Desvie dos obstáculos e colete estrelas!</p>
+
+    <button id="playBtn">JOGAR</button>
 
 </div>
 
-<div id="message"></div>
+<div id="ui">
 
-<div id="score">❤️ 0 / 10</div>
+    <div id="score">⭐ 0</div>
+
+</div>
+
+<div id="gameOver">
+
+    <h1>Fim de Jogo 😅</h1>
+
+    <p id="finalScore"></p>
+
+</div>
 
 <canvas id="game"></canvas>
 
@@ -141,101 +154,82 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const playerImg = new Image();
-playerImg.src = "julia.png";
-
-const gravity = 0.8;
-
-let gameStarted = false;
-
 const music = new Audio("audio.mp3");
 music.loop = true;
 music.volume = 0.4;
 
+const playerImg = new Image();
+playerImg.src = "julia.png";
+
+let gameStarted = false;
+let gameEnded = false;
+
+let score = 0;
+
 const player = {
 
-    x:100,
-    y:300,
+    x:120,
+    y:canvas.height-260,
 
     width:140,
     height:190,
 
-    velX:0,
     velY:0,
-
-    speed:7,
 
     jumping:false
 };
 
-const keys = {};
+const gravity = 0.8;
 
-let cameraX = 0;
+const obstacles = [];
+const stars = [];
 
-let collected = 0;
+function createObstacle(){
 
-const platforms = [
+    obstacles.push({
 
-    {x:0,y:650,w:1000,h:100},
+        x:canvas.width + 100,
+        y:canvas.height - 120,
 
-    {x:1200,y:560,w:300,h:40},
+        width:70,
+        height:70,
 
-    {x:1700,y:470,w:300,h:40},
-
-    {x:2300,y:390,w:300,h:40},
-
-    {x:2900,y:300,w:300,h:40},
-
-    {x:3500,y:650,w:1200,h:100}
-];
-
-const heartMessages = [
-
-"Te amo ❤️",
-
-"Minha baixinha ❤️",
-
-"Morena do Daniel ❤️",
-
-"Meu lugar favorito é você ❤️",
-
-"Você é minha gatinha ❤️",
-
-"Meu coração é seu ❤️",
-
-"Minha princesa ❤️",
-
-"Você ilumina meus dias ❤️",
-
-"Quero você pra sempre ❤️",
-
-"Você é o amor da minha vida ❤️"
-
-];
-
-const hearts = [];
-
-for(let i=0;i<10;i++){
-
-    hearts.push({
-
-        x:700 + i*380,
-
-        y:200 + Math.sin(i)*120,
-
-        collected:false,
-
-        message:heartMessages[i]
+        speed:8
     });
 }
 
-const particles = [];
+function createStar(){
 
-document.addEventListener("keydown", e=>{
+    stars.push({
 
-    keys[e.key] = true;
+        x:canvas.width + 100,
+        y:250 + Math.random()*250,
 
-    if(e.key === "ArrowUp" && !player.jumping){
+        size:45,
+
+        speed:8
+    });
+}
+
+setInterval(()=>{
+
+    if(gameStarted && !gameEnded){
+        createObstacle();
+    }
+
+},1800);
+
+setInterval(()=>{
+
+    if(gameStarted && !gameEnded){
+        createStar();
+    }
+
+},1200);
+
+window.addEventListener("keydown", e=>{
+
+    if(e.key === " " && !player.jumping){
 
         player.velY = -18;
 
@@ -243,138 +237,62 @@ document.addEventListener("keydown", e=>{
     }
 });
 
-document.addEventListener("keyup", e=>{
-
-    keys[e.key] = false;
-});
-
-function createParticles(x,y){
-
-    for(let i=0;i<15;i++){
-
-        particles.push({
-
-            x:x,
-            y:y,
-
-            size:Math.random()*6+2,
-
-            velX:(Math.random()-0.5)*6,
-
-            velY:(Math.random()-0.5)*6,
-
-            alpha:1
-        });
-    }
-}
-
-function showMessage(text){
-
-    const box = document.getElementById("message");
-
-    box.innerText = text;
-
-    box.style.display = "block";
-
-    setTimeout(()=>{
-
-        box.style.display = "none";
-
-    },2500);
-}
-
 function update(){
-
-    player.velX = 0;
-
-    if(keys["ArrowRight"]){
-
-        player.velX = player.speed;
-    }
-
-    if(keys["ArrowLeft"]){
-
-        player.velX = -player.speed;
-    }
-
-    player.x += player.velX;
 
     player.velY += gravity;
 
     player.y += player.velY;
 
-    let grounded = false;
+    if(player.y >= canvas.height-260){
 
-    platforms.forEach(platform=>{
+        player.y = canvas.height-260;
+
+        player.velY = 0;
+
+        player.jumping = false;
+    }
+
+    obstacles.forEach((obs,index)=>{
+
+        obs.x -= obs.speed;
+
+        if(obs.x + obs.width < 0){
+            obstacles.splice(index,1);
+        }
 
         if(
+            player.x < obs.x + obs.width &&
+            player.x + player.width > obs.x &&
+            player.y < obs.y + obs.height &&
+            player.y + player.height > obs.y
+        ){
+            endGame();
+        }
+    });
 
-            player.x + player.width > platform.x &&
-            player.x < platform.x + platform.w &&
+    stars.forEach((star,index)=>{
 
-            player.y + player.height > platform.y &&
-            player.y + player.height < platform.y + 30 &&
+        star.x -= star.speed;
 
-            player.velY >= 0
+        if(star.x + star.size < 0){
+            stars.splice(index,1);
+        }
+
+        if(
+            player.x < star.x + star.size &&
+            player.x + player.width > star.x &&
+            player.y < star.y + star.size &&
+            player.y + player.height > star.y
         ){
 
-            player.y = platform.y - player.height;
+            stars.splice(index,1);
 
-            player.velY = 0;
+            score++;
 
-            grounded = true;
+            document.getElementById("score").innerText =
+            "⭐ " + score;
         }
     });
-
-    player.jumping = !grounded;
-
-    hearts.forEach(heart=>{
-
-        if(!heart.collected){
-
-            if(
-
-                player.x < heart.x + 40 &&
-                player.x + player.width > heart.x &&
-
-                player.y < heart.y + 40 &&
-                player.y + player.height > heart.y
-            ){
-
-                heart.collected = true;
-
-                collected++;
-
-                document.getElementById("score").innerText =
-                "❤️ " + collected + " / 10";
-
-                showMessage(heart.message);
-
-                createParticles(heart.x,heart.y);
-            }
-        }
-    });
-
-    particles.forEach((p,index)=>{
-
-        p.x += p.velX;
-
-        p.y += p.velY;
-
-        p.alpha -= 0.02;
-
-        if(p.alpha <= 0){
-
-            particles.splice(index,1);
-        }
-    });
-
-    cameraX = player.x - 350;
-
-    if(cameraX < 0){
-
-        cameraX = 0;
-    }
 }
 
 function drawBackground(){
@@ -384,142 +302,57 @@ function drawBackground(){
     );
 
     gradient.addColorStop(0,"#87CEEB");
-    gradient.addColorStop(1,"#ffd6e8");
+    gradient.addColorStop(1,"#dff6ff");
 
     ctx.fillStyle = gradient;
-
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    // nuvens
+    // chão
 
-    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fillStyle = "#7cb342";
+    ctx.fillRect(0,canvas.height-70,canvas.width,70);
 
-    for(let i=0;i<12;i++){
+    // escola
 
-        ctx.beginPath();
+    ctx.fillStyle = "#f4a261";
 
-        ctx.arc(
-            i*400 - cameraX*0.2,
-            120 + Math.sin(i)*30,
-            50,
-            0,
-            Math.PI*2
-        );
+    ctx.fillRect(900,220,300,260);
 
-        ctx.fill();
+    ctx.fillStyle = "white";
+
+    for(let i=0;i<3;i++){
+
+        ctx.fillRect(940+i*80,280,50,50);
+        ctx.fillRect(940+i*80,360,50,50);
     }
-}
 
-function drawPlatforms(){
-
-    platforms.forEach(platform=>{
-
-        // terra
-
-        ctx.fillStyle = "#7a5230";
-
-        ctx.fillRect(
-
-            platform.x-cameraX,
-            platform.y,
-
-            platform.w,
-            platform.h
-        );
-
-        // grama
-
-        ctx.fillStyle = "#2ecc71";
-
-        ctx.fillRect(
-
-            platform.x-cameraX,
-            platform.y,
-
-            platform.w,
-            15
-        );
-    });
-}
-
-function drawHearts(){
-
-    hearts.forEach(heart=>{
-
-        if(!heart.collected){
-
-            ctx.font = "50px Arial";
-
-            ctx.fillText(
-
-                "❤️",
-
-                heart.x-cameraX,
-                heart.y
-            );
-        }
-    });
-}
-
-function drawParticles(){
-
-    particles.forEach(p=>{
-
-        ctx.globalAlpha = p.alpha;
-
-        ctx.fillStyle = "white";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            p.x-cameraX,
-            p.y,
-            p.size,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-
-        ctx.globalAlpha = 1;
-    });
+    ctx.fillStyle = "#8d5524";
+    ctx.fillRect(1030,390,50,90);
 }
 
 function drawPlayer(){
 
-    // sombra
-
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
 
     ctx.beginPath();
-
     ctx.ellipse(
-
-        player.x-cameraX+70,
-        player.y+200,
-
-        55,
+        player.x+70,
+        player.y+190,
+        50,
         15,
-
         0,
         0,
         Math.PI*2
     );
-
     ctx.fill();
 
-    // brilho
-
-    ctx.shadowColor = "hotpink";
-    ctx.shadowBlur = 30;
+    ctx.shadowColor = "gold";
+    ctx.shadowBlur = 25;
 
     ctx.drawImage(
-
         playerImg,
-
-        player.x-cameraX,
+        player.x,
         player.y,
-
         player.width,
         player.height
     );
@@ -527,65 +360,63 @@ function drawPlayer(){
     ctx.shadowBlur = 0;
 }
 
-function drawFinal(){
+function drawObstacles(){
 
-    if(collected >= 10){
+    obstacles.forEach(obs=>{
 
-        ctx.fillStyle = "rgba(0,0,0,0.7)";
+        ctx.fillStyle = "#6d4c41";
 
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-
-        ctx.fillStyle = "pink";
-
-        ctx.font = "75px Arial";
-
-        ctx.fillText(
-
-            "Você zerou meu coração ❤️",
-
-            180,
-            240
+        ctx.fillRect(
+            obs.x,
+            obs.y,
+            obs.width,
+            obs.height
         );
 
+        ctx.fillStyle = "white";
         ctx.font = "40px Arial";
+        ctx.fillText("📚",obs.x+10,obs.y+50);
+    });
+}
+
+function drawStars(){
+
+    stars.forEach(star=>{
+
+        ctx.font = "45px Arial";
 
         ctx.fillText(
-
-            "Obrigado por existir na minha vida ❤️",
-
-            300,
-            340
+            "⭐",
+            star.x,
+            star.y
         );
+    });
+}
 
-        ctx.fillText(
+function endGame(){
 
-            "Eu te amo MUITO ❤️",
+    gameEnded = true;
 
-            430,
-            420
-        );
-    }
+    document.getElementById("finalScore").innerText =
+    "Pontuação: " + score;
+
+    document.getElementById("gameOver").style.display = "flex";
 }
 
 function draw(){
 
     drawBackground();
 
-    drawPlatforms();
+    drawStars();
 
-    drawHearts();
-
-    drawParticles();
+    drawObstacles();
 
     drawPlayer();
-
-    drawFinal();
 }
 
 function loop(){
 
-    if(gameStarted){
-
+    if(gameStarted && !gameEnded){
         update();
     }
 
@@ -595,18 +426,17 @@ function loop(){
 }
 
 playerImg.onload = ()=>{
-
     loop();
 };
 
 playerImg.onerror = ()=>{
-
     loop();
 };
 
-document.getElementById("startBtn").onclick = ()=>{
 
-    document.getElementById("startScreen").style.display = "none";
+document.getElementById("playBtn").onclick = ()=>{
+
+    document.getElementById("start").style.display = "none";
 
     gameStarted = true;
 
