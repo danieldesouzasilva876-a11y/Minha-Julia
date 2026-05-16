@@ -19,7 +19,6 @@ box-sizing:border-box;
 
 :root{
 --pink:#ff4d8d;
---pink2:#ff85b3;
 --purple:#9b59f5;
 --blue:#4cc9f0;
 --yellow:#ffd60a;
@@ -27,13 +26,14 @@ box-sizing:border-box;
 
 body{
 overflow:hidden;
+touch-action:none;
+overscroll-behavior:none;
+user-select:none;
 font-family:'Nunito',sans-serif;
 background:#140222;
-touch-action:none;
-user-select:none;
 }
 
-/* ================= BG ================= */
+/* ================= BACKGROUND ================= */
 
 #bg{
 position:fixed;
@@ -363,6 +363,8 @@ color:white;
 position:fixed;
 inset:0;
 z-index:10;
+touch-action:none;
+pointer-events:auto;
 }
 
 </style>
@@ -831,9 +833,7 @@ el.textContent='🔥 COMBO x'+combo;
 el.classList.add('show');
 
 setTimeout(()=>{
-
 el.classList.remove('show');
-
 },700);
 
 showSpeech();
@@ -857,9 +857,7 @@ speech.textContent=rand(msgs);
 speech.classList.add('show');
 
 setTimeout(()=>{
-
 speech.classList.remove('show');
-
 },2200);
 
 }
@@ -885,30 +883,23 @@ ctx.save();
 ctx.fillStyle=c;
 
 if(glow){
-
 ctx.shadowColor=c;
 ctx.shadowBlur=20;
-
 }
 
 ctx.beginPath();
 
 ctx.moveTo(x+r,y);
-
 ctx.lineTo(x+w-r,y);
-
 ctx.quadraticCurveTo(x+w,y,x+w,y+r);
 
 ctx.lineTo(x+w,y+h-r);
-
 ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
 
 ctx.lineTo(x+r,y+h);
-
 ctx.quadraticCurveTo(x,y+h,x,y+h-r);
 
 ctx.lineTo(x,y+r);
-
 ctx.quadraticCurveTo(x,y,x+r,y);
 
 ctx.fill();
@@ -1093,9 +1084,7 @@ p.vy+=.06;
 p.a-=.02;
 
 if(p.a<=0){
-
 particles.splice(i,1);
-
 }
 
 }
@@ -1131,7 +1120,6 @@ combo=0;
 updateUI();
 
 resetBoard();
-
 createPieces();
 
 gameRunning=true;
@@ -1140,15 +1128,51 @@ gameRunning=true;
 
 /* ================= EVENTS ================= */
 
-canvas.addEventListener('mousedown',startDrag);
-canvas.addEventListener('mousemove',moveDrag);
-canvas.addEventListener('mouseup',endDrag);
+canvas.addEventListener('mousedown',(e)=>{
+startDrag(e);
+});
 
-canvas.addEventListener('touchstart',startDrag,{passive:false});
-canvas.addEventListener('touchmove',moveDrag,{passive:false});
-canvas.addEventListener('touchend',endDrag);
+canvas.addEventListener('mousemove',(e)=>{
+moveDrag(e);
+});
 
-/* ================= PLAY BUTTON FIX ================= */
+canvas.addEventListener('mouseup',(e)=>{
+endDrag(e);
+});
+
+/* ===== TOUCH MOBILE FIX ===== */
+
+canvas.addEventListener('touchstart',(e)=>{
+
+e.preventDefault();
+
+startDrag(e);
+
+},{passive:false});
+
+canvas.addEventListener('touchmove',(e)=>{
+
+e.preventDefault();
+
+moveDrag(e);
+
+},{passive:false});
+
+canvas.addEventListener('touchend',(e)=>{
+
+e.preventDefault();
+
+endDrag(e);
+
+},{passive:false});
+
+canvas.addEventListener('touchcancel',(e)=>{
+
+endDrag(e);
+
+},{passive:false});
+
+/* ================= PLAY ================= */
 
 document.getElementById('playBtn').onclick=()=>{
 
