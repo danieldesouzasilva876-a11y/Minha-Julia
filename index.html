@@ -294,7 +294,7 @@ body{
     </div>
     <button class="go-btn go-btn-play" id="goRestart">🔄 Jogar Novamente</button>
     <button class="go-btn go-btn-menu" id="goMenu">🏠 Menu Principal</button>
-    <div class="go-msg">Daniel te ama demais ❤️</div>
+    <div class="go-msg">Daniel te amo demais ❤️</div>
   </div>
 </div>
 
@@ -433,7 +433,6 @@ function pieceTrayX(i){
 
 function startDrag(e){
   if(!gameRunning) return;
-  if(e.touches) e.preventDefault();
   const p=getPos(e);
   
   pieces.forEach((piece,i)=>{
@@ -442,13 +441,11 @@ function startDrag(e){
     const pw=piece.shape[0].length*CELL*0.7;
     const ph=piece.shape.length*CELL*0.7;
     
-    // Área de colisão aumentada para facilitar toque no celular
-    if(p.x>px-20 && p.x<px+pw+20 && p.y>py-20 && p.y<py+ph+20){
+    // Área de colisão ampliada ao redor da peça (facilita o toque)
+    if(p.x>px-25 && p.x<px+pw+25 && p.y>py-25 && p.y<py+ph+25){
       dragging={
         piece,
         index:i,
-        offsetX: p.x - px,
-        offsetY: p.y - py,
         x:p.x,
         y:p.y
       };
@@ -458,11 +455,10 @@ function startDrag(e){
 
 function moveDrag(e){
   if(!dragging) return;
-  if(e.touches) e.preventDefault();
   const p=getPos(e);
   
   dragging.x=p.x; 
-  // No celular, adicionamos um deslocamento para cima (-60) para o dedo não cobrir o bloco
+  // Se for touch, joga o bloco 60px para cima pro dedo do usuário não tapar a visão do encaixe
   dragging.y=e.touches ? p.y - 60 : p.y; 
   
   updateHighlight();
@@ -470,9 +466,8 @@ function moveDrag(e){
 
 function endDrag(e){
   if(!dragging) return;
-  if(e.touches) e.preventDefault();
   
-  // Alinha pelo canto superior esquerdo visual da peça que está sendo arrastada
+  // Calcula o encaixe correto no grid com base no centro visual do bloco que você está arrastando
   const gx=Math.round((dragging.x - boardX - (CELL/2)) / CELL);
   const gy=Math.round((dragging.y - boardY - (CELL/2)) / CELL);
   
@@ -653,7 +648,7 @@ function goToMenu(){
 
 // ─── DRAW ───
 function rrect(x,y,w,h,r,c,shadow,blur){
-  ctx.save(); // Salva o estado para a sombra não bugar as renderizações seguintes
+  ctx.save(); 
   if(shadow){ ctx.shadowColor=shadow; ctx.shadowBlur=blur||0; }
   ctx.fillStyle=c;
   ctx.beginPath();
@@ -666,7 +661,7 @@ function rrect(x,y,w,h,r,c,shadow,blur){
   ctx.lineTo(x,y+r);
   ctx.quadraticCurveTo(x,y,x+r,y);
   ctx.fill();
-  ctx.restore(); // Restaura o estado limpo sem sombras acumuladas
+  ctx.restore(); 
 }
 
 function drawBoard(){
@@ -727,11 +722,9 @@ function drawPieces(){
     if(dragging&&dragging.index===i) return;
     const px=pieceTrayX(i), py=canvas.height-110;
     const fits=canFitAnywhere(piece);
-    // Peças no menu inferior ficam levemente menores (escala 0.7) para caber melhor em telas pequenas
     drawPiece(piece,px,py,fits?1:.32,!fits,0.7);
   });
   if(dragging){
-    // Ao arrastar, o bloco volta ao tamanho normal (escala 1) para encaixar perfeitamente no grid
     drawPiece(dragging.piece,dragging.x - (CELL/2),dragging.y - (CELL/2),.9,false,1);
   }
 }
@@ -790,12 +783,24 @@ function initHeartRain(){
 }
 
 // ─── EVENTS ───
-canvas.addEventListener('touchstart',startDrag,{passive:false});
-canvas.addEventListener('touchmove',moveDrag,{passive:false});
-canvas.addEventListener('touchend',endDrag,{passive:false});
-canvas.addEventListener('mousedown',startDrag);
-canvas.addEventListener('mousemove',moveDrag);
-canvas.addEventListener('mouseup',endDrag);
+canvas.addEventListener('touchstart', (e) => {
+  if (e.cancelable) e.preventDefault();
+  startDrag(e);
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  if (e.cancelable) e.preventDefault();
+  moveDrag(e);
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+  if (e.cancelable) e.preventDefault();
+  endDrag(e);
+}, { passive: false });
+
+canvas.addEventListener('mousedown', startDrag);
+canvas.addEventListener('mousemove', moveDrag);
+canvas.addEventListener('mouseup', endDrag);
 
 document.getElementById('startBtn').onclick=()=>{
   document.getElementById('menu').style.display='none';
