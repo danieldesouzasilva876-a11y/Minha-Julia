@@ -274,24 +274,80 @@ function drawBackground(){
 
 function drawRoad(){
 
-    ctx.fillStyle = "#2c2c2c";
-    ctx.fillRect(240,0,800,720);
+    // Estrada 3D
+    const roadTopWidth = 250;
+    const roadBottomWidth = 900;
 
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 12;
+    const centerX = canvas.width/2;
 
-    for(let i=-720;i<720;i+=80){
+    ctx.fillStyle = "#1e1e1e";
+
+    ctx.beginPath();
+    ctx.moveTo(centerX-roadTopWidth/2,0);
+    ctx.lineTo(centerX+roadTopWidth/2,0);
+    ctx.lineTo(centerX+roadBottomWidth/2,720);
+    ctx.lineTo(centerX-roadBottomWidth/2,720);
+    ctx.closePath();
+    ctx.fill();
+
+    // brilho lateral
+    ctx.strokeStyle = "hotpink";
+    ctx.lineWidth = 6;
+
+    ctx.beginPath();
+    ctx.moveTo(centerX-roadTopWidth/2,0);
+    ctx.lineTo(centerX-roadBottomWidth/2,720);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(centerX+roadTopWidth/2,0);
+    ctx.lineTo(centerX+roadBottomWidth/2,720);
+    ctx.stroke();
+
+    // faixas 3D
+    for(let i=0;i<20;i++){
+
+        const y = (i*80 + roadOffset) % 900;
+
+        const scale = y/720;
+
+        const laneWidthTop = 80;
+        const laneWidthBottom = 260;
+
+        const left1 = centerX - laneWidthTop*scale;
+        const left2 = centerX - laneWidthBottom*scale;
+
+        const right1 = centerX + laneWidthTop*scale;
+        const right2 = centerX + laneWidthBottom*scale;
+
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 8;
 
         ctx.beginPath();
-        ctx.moveTo(510, i + (roadOffset % 80));
-        ctx.lineTo(510, i+40 + (roadOffset % 80));
+        ctx.moveTo(left1,y);
+        ctx.lineTo(left2,y+60);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.moveTo(770, i + (roadOffset % 80));
-        ctx.lineTo(770, i+40 + (roadOffset % 80));
+        ctx.moveTo(right1,y);
+        ctx.lineTo(right2,y+60);
         ctx.stroke();
     }
+
+    // linhas velocidade
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+
+    for(let i=0;i<50;i++){
+
+        const x = Math.random()*1280;
+        const y = Math.random()*720;
+
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        ctx.lineTo(x,y+20);
+        ctx.stroke();
+    }
+}
 }
 
 
@@ -299,16 +355,48 @@ function drawPlayer(){
 
     ctx.save();
 
-    ctx.shadowColor = "hotpink";
-    ctx.shadowBlur = 30;
+    // sombra personagem
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
 
-    ctx.drawImage(
-        playerImg,
-        player.x,
-        player.y,
-        player.width,
-        player.height
+    ctx.beginPath();
+    ctx.ellipse(
+        player.x+70,
+        player.y+170,
+        50,
+        18,
+        0,
+        0,
+        Math.PI*2
     );
+    ctx.fill();
+
+    // brilho neon
+    ctx.shadowColor = "hotpink";
+    ctx.shadowBlur = 35;
+
+    // inclinação no pulo
+    if(player.jumping){
+        ctx.translate(player.x+70,player.y+90);
+        ctx.rotate(-0.08);
+
+        ctx.drawImage(
+            playerImg,
+            -70,
+            -90,
+            player.width,
+            player.height
+        );
+
+    }else{
+
+        ctx.drawImage(
+            playerImg,
+            player.x,
+            player.y,
+            player.width,
+            player.height
+        );
+    }
 
     ctx.restore();
 }
@@ -318,28 +406,68 @@ function drawObstacles(){
 
     obstacles.forEach(obs=>{
 
+        const perspective = obs.y / 720;
+
+        const scale = 0.5 + perspective;
+
+        const width = obs.width * scale;
+        const height = obs.height * scale;
+
         ctx.save();
 
         ctx.shadowColor = "red";
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 40;
 
-        const sizePulse = Math.sin(obs.pulse) * 5;
+        // sombra
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.beginPath();
+        ctx.ellipse(
+            obs.x+60,
+            obs.y+height,
+            width/2,
+            20,
+            0,
+            0,
+            Math.PI*2
+        );
+        ctx.fill();
 
-        ctx.fillStyle = "#ff1744";
+        // cubo obstáculo
+        const grd = ctx.createLinearGradient(obs.x,obs.y,obs.x+width,obs.y+height);
+
+        grd.addColorStop(0,"#ff1744");
+        grd.addColorStop(1,"#ff6b81");
+
+        ctx.fillStyle = grd;
 
         ctx.fillRect(
-            obs.x-sizePulse/2,
-            obs.y-sizePulse/2,
-            obs.width+sizePulse,
-            obs.height+sizePulse
+            obs.x-width/2+60,
+            obs.y,
+            width,
+            height
+        );
+
+        // brilho
+        ctx.fillStyle = "rgba(255,255,255,0.25)";
+
+        ctx.fillRect(
+            obs.x-width/2+70,
+            obs.y+10,
+            width*0.2,
+            height-20
         );
 
         ctx.fillStyle = "white";
-        ctx.font = "60px Arial";
-        ctx.fillText("X", obs.x+35, obs.y+78);
+        ctx.font = (40*scale) + "px Arial";
+        ctx.fillText(
+            "X",
+            obs.x+35,
+            obs.y+height/1.5
+        );
 
         ctx.restore();
     });
+});
 }
 
 
