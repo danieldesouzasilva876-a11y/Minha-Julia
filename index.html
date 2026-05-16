@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz da Júlia ❤️</title>
+<title>Life With Júlia ❤️</title>
 
 <style>
 
@@ -15,138 +15,191 @@
 
 body{
     overflow:hidden;
+    background:#111;
     font-family:Arial, sans-serif;
-    background:linear-gradient(180deg,#ff7eb3,#ffb6d9,#ffe0ec);
 }
 
 canvas{
     display:block;
 }
 
-#quizBox{
+#startScreen{
 
     position:absolute;
-    bottom:40px;
+    width:100%;
+    height:100%;
+
+    background:linear-gradient(180deg,#ff5fa2,#ffb6d9);
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    z-index:100;
+
+    color:white;
+}
+
+#startScreen h1{
+
+    font-size:90px;
+
+    text-shadow:0 0 25px hotpink;
+}
+
+#startScreen p{
+
+    margin-top:20px;
+    font-size:30px;
+}
+
+#playBtn{
+
+    margin-top:40px;
+
+    border:none;
+
+    padding:20px 60px;
+
+    border-radius:25px;
+
+    background:white;
+
+    color:#ff1493;
+
+    font-size:32px;
+
+    cursor:pointer;
+
+    box-shadow:0 0 25px white;
+}
+
+#dialogue{
+
+    position:absolute;
+
+    bottom:30px;
     left:50%;
+
     transform:translateX(-50%);
 
-    width:700px;
+    width:900px;
 
-    background:rgba(255,255,255,0.95);
+    background:rgba(255,255,255,0.96);
 
     border-radius:30px;
 
     padding:25px;
 
-    box-shadow:0 0 30px rgba(0,0,0,0.3);
+    display:none;
+
+    z-index:50;
+
+    box-shadow:0 0 30px rgba(0,0,0,0.4);
+}
+
+#dialogueText{
+
+    font-size:32px;
+
+    color:#ff1493;
+
+    text-align:center;
+}
+
+#loveBar{
+
+    position:absolute;
+
+    top:20px;
+    left:20px;
+
+    width:350px;
+    height:35px;
+
+    background:rgba(255,255,255,0.3);
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    border:2px solid white;
 
     z-index:10;
 }
 
-#question{
+#loveFill{
 
-    font-size:30px;
-    margin-bottom:25px;
-    color:#ff1493;
-    text-align:center;
-}
-
-.answers{
-
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-}
-
-button{
-
-    border:none;
-    padding:18px;
-    border-radius:20px;
-    cursor:pointer;
-
-    font-size:20px;
-
-    background:#ff5fa2;
-    color:white;
-
-    transition:0.2s;
-}
-
-button:hover{
-    transform:scale(1.05);
-    background:#ff2e88;
-}
-
-#score{
-
-    position:absolute;
-    top:20px;
-    left:20px;
-
-    font-size:30px;
-    color:white;
-    text-shadow:0 0 10px black;
-}
-
-#finalScreen{
-
-    position:absolute;
-
-    width:100%;
+    width:0%;
     height:100%;
 
-    background:rgba(0,0,0,0.8);
+    background:linear-gradient(90deg,#ff1493,#ff7eb3);
 
-    display:none;
+    transition:0.3s;
+}
 
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
+#loveText{
+
+    position:absolute;
+
+    top:65px;
+    left:20px;
 
     color:white;
 
-    z-index:100;
+    font-size:28px;
+
+    text-shadow:0 0 10px black;
+
+    z-index:10;
 }
 
-#finalScreen h1{
+#controls{
 
-    font-size:80px;
-    color:pink;
-    text-shadow:0 0 20px hotpink;
-}
+    position:absolute;
 
-#finalScreen p{
+    top:20px;
+    right:20px;
 
-    margin-top:20px;
-    font-size:35px;
+    color:white;
+
+    font-size:24px;
+
+    text-align:right;
+
+    text-shadow:0 0 10px black;
+
+    z-index:10;
 }
 
 </style>
 </head>
 <body>
 
-<div id="score">❤️ 0 / 10</div>
+<div id="startScreen">
 
-<div id="quizBox">
+    <h1>Life With Júlia ❤️</h1>
 
-    <div id="question"></div>
+    <p>Entre no nosso mundinho</p>
 
-    <div class="answers">
-        <button id="a1"></button>
-        <button id="a2"></button>
-        <button id="a3"></button>
-        <button id="a4"></button>
-    </div>
+    <button id="playBtn">COMEÇAR</button>
 
 </div>
 
-<div id="finalScreen">
+<div id="loveBar">
+    <div id="loveFill"></div>
+</div>
 
-    <h1>VOCÊ VENCEU ❤️</h1>
+<div id="loveText">Amor ❤️ 0%</div>
 
-    <p>Seu prêmio é um encontro comigo 😘</p>
+<div id="controls">
+    ← → ↑ ↓ para andar<br>
+    SPACE para interagir
+</div>
 
+<div id="dialogue">
+    <div id="dialogueText"></div>
 </div>
 
 <canvas id="game"></canvas>
@@ -159,146 +212,179 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const music = new Audio("audio.mp3");
+music.loop = true;
+music.volume = 0.4;
+
 const playerImg = new Image();
 playerImg.src = "julia.png";
 
-let hearts = [];
+let gameStarted = false;
 
-for(let i=0;i<30;i++){
+const keys = {};
 
-    hearts.push({
+const player = {
 
-        x:Math.random()*canvas.width,
-        y:Math.random()*canvas.height,
-        size:20+Math.random()*30,
-        speed:1+Math.random()*2
-    });
-}
+    x:500,
+    y:350,
 
-const questions = [
+    width:170,
+    height:240,
+
+    speed:6
+};
+
+let love = 0;
+
+const interactions = [
 
 {
-q:"Onde nos conhecemos?",
-a:["Instagram","Escola","Rua","Mercado"],
-correct:0
+    x:250,
+    y:240,
+    width:170,
+    height:130,
+    emoji:"🛏️",
+    text:"Nosso cantinho seria perfeito ❤️",
+    done:false
 },
 
 {
-q:"Quem se apaixonou primeiro?",
-a:["Você","Eu","Os dois","Ninguém"],
-correct:1
+    x:850,
+    y:220,
+    width:140,
+    height:120,
+    emoji:"📺",
+    text:"Imagina maratonar séries juntinhos 🥰",
+    done:false
 },
 
 {
-q:"Qual nossa música?",
-a:["A","B","C","D"],
-correct:1
+    x:640,
+    y:520,
+    width:130,
+    height:120,
+    emoji:"🌹",
+    text:"Você é a parte mais bonita da minha vida ❤️",
+    done:false
 },
 
 {
-q:"Quem manda mais mensagem?",
-a:["Você","Eu","Os dois","Ninguém"],
-correct:1
+    x:1120,
+    y:470,
+    width:150,
+    height:140,
+    emoji:"🎁",
+    text:"Seu prêmio final vai ser especial 😘",
+    done:false
 },
 
 {
-q:"Quem sente mais saudade?",
-a:["Você","Eu","Os dois","Ninguém"],
-correct:2
-},
-
-{
-q:"Qual comida favorita?",
-a:["Pizza","Hambúrguer","Açaí","Sushi"],
-correct:1
-},
-
-{
-q:"Quem é mais ciumento?",
-a:["Você","Eu","Os dois","Ninguém"],
-correct:1
-},
-
-{
-q:"Qual nosso sonho?",
-a:["Viajar","Morar juntos","Ter empresa","Tudo"],
-correct:3
-},
-
-{
-q:"Quem é mais fofo?",
-a:["Você","Eu","Os dois","Ninguém"],
-correct:2
-},
-
-{
-q:"Você me ama?",
-a:["Muito","Demais","Óbvio","Todas"],
-correct:3
+    x:150,
+    y:520,
+    width:120,
+    height:120,
+    emoji:"🎵",
+    text:"Toda música me lembra você ❤️",
+    done:false
 }
 
 ];
 
-let current = 0;
-let score = 0;
+function updateLove(){
 
-const questionEl = document.getElementById("question");
+    document.getElementById("loveFill").style.width = love + "%";
 
-const buttons = [
-
-document.getElementById("a1"),
-document.getElementById("a2"),
-document.getElementById("a3"),
-document.getElementById("a4")
-
-];
-
-function loadQuestion(){
-
-    const q = questions[current];
-
-    questionEl.innerText = q.q;
-
-    buttons.forEach((btn,index)=>{
-
-        btn.innerText = q.a[index];
-
-        btn.onclick = ()=>{
-
-            if(index === q.correct){
-
-                score++;
-
-                document.getElementById("score").innerText =
-                "❤️ " + score + " / 10";
-            }
-
-            current++;
-
-            if(current >= questions.length){
-
-                finishGame();
-
-            }else{
-
-                loadQuestion();
-            }
-        };
-    });
+    document.getElementById("loveText").innerText =
+    "Amor ❤️ " + love + "%";
 }
 
-function finishGame(){
+window.addEventListener("keydown", e=>{
 
-    document.getElementById("quizBox").style.display = "none";
+    keys[e.key] = true;
 
-    if(score >= 10){
-
-        document.getElementById("finalScreen").style.display = "flex";
-
-    }else{
-
-        questionEl.innerText = "Você acertou " + score + " ❤️";
+    if(e.code === "Space"){
+        interact();
     }
+});
+
+window.addEventListener("keyup", e=>{
+    keys[e.key] = false;
+});
+
+function movePlayer(){
+
+    if(keys["ArrowLeft"]){
+        player.x -= player.speed;
+    }
+
+    if(keys["ArrowRight"]){
+        player.x += player.speed;
+    }
+
+    if(keys["ArrowUp"]){
+        player.y -= player.speed;
+    }
+
+    if(keys["ArrowDown"]){
+        player.y += player.speed;
+    }
+
+    if(player.x < 0) player.x = 0;
+    if(player.x > canvas.width-player.width)
+        player.x = canvas.width-player.width;
+
+    if(player.y < 0) player.y = 0;
+    if(player.y > canvas.height-player.height)
+        player.y = canvas.height-player.height;
+}
+
+function interact(){
+
+    interactions.forEach(item=>{
+
+        const touching =
+        player.x < item.x + item.width &&
+        player.x + player.width > item.x &&
+        player.y < item.y + item.height &&
+        player.y + player.height > item.y;
+
+        if(touching && !item.done){
+
+            item.done = true;
+
+            love += 20;
+
+            if(love > 100) love = 100;
+
+            updateLove();
+
+            showDialogue(item.text);
+
+            if(love >= 100){
+
+                setTimeout(()=>{
+
+                    showDialogue(
+                    "Parabéns ❤️ Seu prêmio é um encontro comigo 😘"
+                    );
+
+                },2000);
+            }
+        }
+    });
+}
+
+function showDialogue(text){
+
+    const box = document.getElementById("dialogue");
+
+    document.getElementById("dialogueText").innerText = text;
+
+    box.style.display = "block";
+
+    setTimeout(()=>{
+        box.style.display = "none";
+    },3500);
 }
 
 function drawBackground(){
@@ -311,102 +397,182 @@ function drawBackground(){
     ctx.fillStyle = gradient;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    hearts.forEach(h=>{
+    // chão
+    ctx.fillStyle = "#f7b2d9";
+    ctx.fillRect(0,canvas.height-180,canvas.width,180);
 
-        ctx.globalAlpha = 0.4;
+    // luzes
+    for(let i=0;i<40;i++){
 
-        ctx.font = h.size + "px Arial";
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
 
-        ctx.fillText("❤️",h.x,h.y);
+        ctx.beginPath();
+        ctx.arc(
+            Math.random()*canvas.width,
+            Math.random()*canvas.height,
+            Math.random()*5,
+            0,
+            Math.PI*2
+        );
 
-        h.y -= h.speed;
-
-        if(h.y < -50){
-
-            h.y = canvas.height + 50;
-            h.x = Math.random()*canvas.width;
-        }
-    });
-
-    ctx.globalAlpha = 1;
+        ctx.fill();
+    }
 }
 
-function drawCharacter(){
+function drawRoom(){
 
-    const x = canvas.width/2 - 120;
-    const y = canvas.height/2 - 200;
+    // cama
+    ctx.fillStyle = "#ff5fa2";
+    ctx.fillRect(250,240,170,130);
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(270,260,70,40);
+
+    // tv
+    ctx.fillStyle = "#222";
+    ctx.fillRect(850,220,140,120);
+
+    // flor
+    ctx.fillStyle = "#2ecc71";
+    ctx.fillRect(690,530,20,80);
+
+    ctx.fillStyle = "#ff1493";
+
+    ctx.beginPath();
+    ctx.arc(700,510,30,0,Math.PI*2);
+    ctx.fill();
+
+    // presente
+    ctx.fillStyle = "#ff1744";
+    ctx.fillRect(1120,470,150,140);
+
+    ctx.fillStyle = "gold";
+    ctx.fillRect(1185,470,20,140);
+    ctx.fillRect(1120,530,150,20);
+
+    // música
+    ctx.fillStyle = "white";
+    ctx.font = "90px Arial";
+    ctx.fillText("🎵",150,600);
+}
+
+function drawInteractions(){
+
+    interactions.forEach(item=>{
+
+        if(!item.done){
+
+            ctx.font = "60px Arial";
+
+            ctx.fillText(
+                item.emoji,
+                item.x + 40,
+                item.y - 20
+            );
+
+            // brilho
+            ctx.strokeStyle = "rgba(255,255,255,0.35)";
+            ctx.lineWidth = 4;
+
+            ctx.strokeRect(
+                item.x,
+                item.y,
+                item.width,
+                item.height
+            );
+        }
+    });
+}
+
+function drawPlayer(){
 
     // sombra
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
 
     ctx.beginPath();
     ctx.ellipse(
-        canvas.width/2,
-        y+320,
-        80,
-        20,
+        player.x + 85,
+        player.y + 250,
+        55,
+        18,
         0,
         0,
         Math.PI*2
     );
+
     ctx.fill();
 
     // brilho
     ctx.shadowColor = "hotpink";
-    ctx.shadowBlur = 30;
+    ctx.shadowBlur = 35;
 
     ctx.drawImage(
         playerImg,
-        x,
-        y,
-        240,
-        320
+        player.x,
+        player.y,
+        player.width,
+        player.height
     );
 
     ctx.shadowBlur = 0;
 
-    // bolha
+    // balão
     ctx.fillStyle = "white";
 
     ctx.beginPath();
-
     ctx.roundRect(
-        canvas.width/2 - 250,
-        y - 140,
-        500,
-        100,
-        25
+        player.x - 40,
+        player.y - 70,
+        250,
+        55,
+        20
     );
 
     ctx.fill();
 
     ctx.fillStyle = "#ff1493";
-
-    ctx.font = "28px Arial";
-
-    ctx.textAlign = "center";
+    ctx.font = "22px Arial";
 
     ctx.fillText(
-        questions[current]?.q || "Você venceu ❤️",
-        canvas.width/2,
-        y - 80
+        "❤️ Eu te amo ❤️",
+        player.x - 15,
+        player.y - 35
     );
 }
 
 function loop(){
 
+    if(gameStarted){
+        movePlayer();
+    }
+
     drawBackground();
 
-    drawCharacter();
+    drawRoom();
+
+    drawInteractions();
+
+    drawPlayer();
 
     requestAnimationFrame(loop);
 }
 
 playerImg.onload = ()=>{
-
     loop();
+};
 
-    loadQuestion();
+playerImg.onerror = ()=>{
+    loop();
+};
+
+
+document.getElementById("playBtn").onclick = ()=>{
+
+    document.getElementById("startScreen").style.display = "none";
+
+    gameStarted = true;
+
+    music.play().catch(()=>{});
 };
 
 </script>
