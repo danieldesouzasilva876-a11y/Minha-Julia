@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Love Blast ❤️</title>
+<title>Love Block ❤️</title>
 
 <style>
 
@@ -11,63 +11,60 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
+    font-family:Arial;
 }
 
 body{
 
     overflow:hidden;
 
-    background:linear-gradient(180deg,#ff7eb3,#ffd6e8);
-
-    font-family:Arial;
-
     display:flex;
-
     justify-content:center;
     align-items:center;
 
     height:100vh;
+
+    background:linear-gradient(180deg,#6576ff,#8ea2ff);
 }
 
 #gameContainer{
 
     position:relative;
 
-    width:520px;
+    width:650px;
+    height:950px;
 }
 
 canvas{
 
-    background:white;
-
-    border-radius:25px;
-
-    box-shadow:0 0 30px rgba(0,0,0,0.3);
+    background:transparent;
 }
 
 #topUI{
 
     position:absolute;
 
-    top:-170px;
+    top:20px;
 
     width:100%;
 
     display:flex;
     flex-direction:column;
     align-items:center;
+
+    z-index:20;
 }
 
 #julia{
 
-    width:140px;
-    height:140px;
-
-    object-fit:cover;
+    width:120px;
+    height:120px;
 
     border-radius:50%;
 
     border:5px solid white;
+
+    object-fit:cover;
 
     box-shadow:0 0 25px hotpink;
 }
@@ -78,33 +75,33 @@ canvas{
 
     background:white;
 
-    padding:15px 25px;
+    color:#ff1493;
+
+    padding:15px 30px;
 
     border-radius:25px;
 
-    font-size:24px;
+    font-size:28px;
 
-    color:#ff1493;
-
-    box-shadow:0 0 15px rgba(0,0,0,0.2);
-
-    min-width:350px;
-
-    text-align:center;
+    box-shadow:0 0 20px rgba(0,0,0,0.2);
 }
 
 #score{
 
     position:absolute;
 
-    top:15px;
-    left:20px;
+    top:40px;
+    left:30px;
 
-    color:#ff1493;
+    color:#ffd54f;
 
-    font-size:28px;
+    font-size:45px;
 
     font-weight:bold;
+
+    text-shadow:0 0 10px rgba(0,0,0,0.5);
+
+    z-index:30;
 }
 
 </style>
@@ -113,21 +110,21 @@ canvas{
 
 <div id="gameContainer">
 
+    <div id="score">
+        👑 0
+    </div>
+
     <div id="topUI">
 
         <img src="julia.png" id="julia">
 
         <div id="speech">
-            Vamos jogar ❤️
+            Te amo ❤️
         </div>
 
     </div>
 
-    <div id="score">
-        ❤️ 0
-    </div>
-
-    <canvas id="game" width="520" height="700"></canvas>
+    <canvas id="game" width="650" height="950"></canvas>
 
 </div>
 
@@ -136,28 +133,20 @@ canvas{
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const GRID = 8;
+const GRID = 10;
 
-const SIZE = 60;
+const CELL = 58;
+
+const boardX = 35;
+const boardY = 220;
 
 let score = 0;
 
 const colors = [
 
-    "#ff5fa2",
-    "#ff8fab",
-    "#ffd166",
-    "#c77dff",
-    "#7bdff2"
-];
-
-const emojis = [
-
-    "❤️",
-    "🥰",
-    "💖",
-    "😘",
-    "💕"
+    "#ff4d6d",
+    "#4cc9f0",
+    "#ffd60a"
 ];
 
 const phrases = [
@@ -168,13 +157,13 @@ const phrases = [
     "Você é perfeita ❤️",
     "Meu amor ❤️",
     "Linda demais ❤️",
-    "Você me faz feliz ❤️",
+    "Você é minha paz ❤️",
     "Meu coração é seu ❤️",
-    "Você é especial ❤️",
+    "Você me faz feliz ❤️",
     "Quero você pra sempre ❤️"
 ];
 
-let board = [];
+const board = [];
 
 for(let y=0;y<GRID;y++){
 
@@ -182,93 +171,385 @@ for(let y=0;y<GRID;y++){
 
     for(let x=0;x<GRID;x++){
 
-        board[y][x] = randomBlock();
+        board[y][x] = null;
     }
 }
 
-function randomBlock(){
+function randomColor(){
+
+    return colors[
+        Math.floor(Math.random()*colors.length)
+    ];
+}
+
+function randomPiece(){
+
+    const pieces = [
+
+        [[1]],
+
+        [[1,1]],
+
+        [[1],[1]],
+
+        [[1,1],[1,1]],
+
+        [[1,1,1]],
+
+        [[1],[1],[1]],
+
+        [[1,1,1,1]],
+
+        [[1],[1],[1],[1]]
+    ];
 
     return {
 
-        color:colors[
-            Math.floor(Math.random()*colors.length)
+        shape:pieces[
+            Math.floor(Math.random()*pieces.length)
         ],
 
-        emoji:emojis[
-            Math.floor(Math.random()*emojis.length)
-        ]
+        color:randomColor()
     };
 }
 
-function drawBoard(){
+let pieces = [
 
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    randomPiece(),
+    randomPiece(),
+    randomPiece()
+];
+
+let dragging = null;
+
+canvas.addEventListener("mousedown", startDrag);
+
+canvas.addEventListener("mousemove", drag);
+
+canvas.addEventListener("mouseup", drop);
+
+function startDrag(e){
+
+    const rect = canvas.getBoundingClientRect();
+
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    pieces.forEach((piece,index)=>{
+
+        const px = 90 + index*180;
+        const py = 820;
+
+        if(
+
+            mx > px &&
+            mx < px+120 &&
+
+            my > py &&
+            my < py+120
+        ){
+
+            dragging = {
+
+                piece:piece,
+                index:index,
+                x:mx,
+                y:my
+            };
+        }
+    });
+}
+
+function drag(e){
+
+    if(dragging){
+
+        const rect = canvas.getBoundingClientRect();
+
+        dragging.x = e.clientX - rect.left;
+        dragging.y = e.clientY - rect.top;
+    }
+}
+
+function drop(){
+
+    if(dragging){
+
+        const gridX =
+        Math.floor((dragging.x-boardX)/CELL);
+
+        const gridY =
+        Math.floor((dragging.y-boardY)/CELL);
+
+        if(canPlace(
+
+            dragging.piece,
+            gridX,
+            gridY
+        )){
+
+            placePiece(
+
+                dragging.piece,
+                gridX,
+                gridY
+            );
+
+            pieces[dragging.index] = randomPiece();
+
+            clearLines();
+
+            updatePhrase();
+        }
+
+        dragging = null;
+    }
+}
+
+function canPlace(piece,gx,gy){
+
+    for(let y=0;y<piece.shape.length;y++){
+
+        for(let x=0;x<piece.shape[y].length;x++){
+
+            if(piece.shape[y][x]){
+
+                const bx = gx+x;
+                const by = gy+y;
+
+                if(
+
+                    bx < 0 ||
+                    by < 0 ||
+                    bx >= GRID ||
+                    by >= GRID
+                ){
+
+                    return false;
+                }
+
+                if(board[by][bx]){
+
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+function placePiece(piece,gx,gy){
+
+    for(let y=0;y<piece.shape.length;y++){
+
+        for(let x=0;x<piece.shape[y].length;x++){
+
+            if(piece.shape[y][x]){
+
+                board[gy+y][gx+x] = piece.color;
+            }
+        }
+    }
+}
+
+function clearLines(){
+
+    // linhas
+
+    for(let y=0;y<GRID;y++){
+
+        let full = true;
+
+        for(let x=0;x<GRID;x++){
+
+            if(!board[y][x]){
+
+                full = false;
+            }
+        }
+
+        if(full){
+
+            for(let x=0;x<GRID;x++){
+
+                board[y][x] = null;
+            }
+
+            score += 10;
+        }
+    }
+
+    // colunas
+
+    for(let x=0;x<GRID;x++){
+
+        let full = true;
+
+        for(let y=0;y<GRID;y++){
+
+            if(!board[y][x]){
+
+                full = false;
+            }
+        }
+
+        if(full){
+
+            for(let y=0;y<GRID;y++){
+
+                board[y][x] = null;
+            }
+
+            score += 10;
+        }
+    }
+
+    document.getElementById("score").innerText =
+    "👑 " + score;
+}
+
+function updatePhrase(){
+
+    document.getElementById("speech").innerText =
+
+    phrases[
+        Math.floor(Math.random()*phrases.length)
+    ];
+}
+
+function drawBoard(){
 
     for(let y=0;y<GRID;y++){
 
         for(let x=0;x<GRID;x++){
 
-            const block = board[y][x];
+            const px = boardX + x*CELL;
+            const py = boardY + y*CELL;
 
-            if(block){
+            // fundo
 
-                const px = x*SIZE + 20;
-                const py = y*SIZE + 120;
+            ctx.fillStyle = "#1f2c6d";
 
-                // sombra
+            roundRect(
+                px,
+                py,
+                CELL-4,
+                CELL-4,
+                12
+            );
 
-                ctx.fillStyle = "rgba(0,0,0,0.15)";
+            // bloco
 
-                ctx.fillRect(
-                    px+5,
-                    py+5,
-                    SIZE-8,
-                    SIZE-8
-                );
+            if(board[y][x]){
 
-                // bloco
-
-                ctx.fillStyle = block.color;
+                ctx.fillStyle = board[y][x];
 
                 roundRect(
-                    px,
-                    py,
-                    SIZE-8,
-                    SIZE-8,
-                    18,
-                    true
+                    px+2,
+                    py+2,
+                    CELL-8,
+                    CELL-8,
+                    12
                 );
 
                 // brilho
 
-                ctx.fillStyle = "rgba(255,255,255,0.2)";
+                ctx.fillStyle =
+                "rgba(255,255,255,0.25)";
 
                 roundRect(
-                    px+5,
-                    py+5,
-                    SIZE-20,
-                    15,
-                    10,
-                    true
-                );
-
-                // emoji
-
-                ctx.font = "28px Arial";
-
-                ctx.fillStyle = "white";
-
-                ctx.fillText(
-                    block.emoji,
-                    px+13,
-                    py+38
+                    px+7,
+                    py+7,
+                    CELL-20,
+                    12,
+                    8
                 );
             }
         }
     }
 }
 
-function roundRect(x,y,w,h,r,fill){
+function drawPieces(){
+
+    pieces.forEach((piece,index)=>{
+
+        const startX = 90 + index*180;
+        const startY = 820;
+
+        drawPiece(
+            piece,
+            startX,
+            startY
+        );
+    });
+
+    if(dragging){
+
+        drawPiece(
+
+            dragging.piece,
+
+            dragging.x,
+            dragging.y,
+
+            true
+        );
+    }
+}
+
+function drawPiece(piece,px,py,center=false){
+
+    for(let y=0;y<piece.shape.length;y++){
+
+        for(let x=0;x<piece.shape[y].length;x++){
+
+            if(piece.shape[y][x]){
+
+                let drawX =
+                px + x*CELL;
+
+                let drawY =
+                py + y*CELL;
+
+                if(center){
+
+                    drawX -= 40;
+                    drawY -= 40;
+                }
+
+                ctx.fillStyle = piece.color;
+
+                roundRect(
+
+                    drawX,
+                    drawY,
+
+                    CELL-8,
+                    CELL-8,
+
+                    12
+                );
+
+                ctx.fillStyle =
+                "rgba(255,255,255,0.25)";
+
+                roundRect(
+
+                    drawX+5,
+                    drawY+5,
+
+                    CELL-20,
+                    10,
+
+                    8
+                );
+            }
+        }
+    }
+}
+
+function roundRect(x,y,w,h,r){
 
     ctx.beginPath();
 
@@ -292,185 +573,21 @@ function roundRect(x,y,w,h,r,fill){
 
     ctx.closePath();
 
-    if(fill){
-
-        ctx.fill();
-    }
+    ctx.fill();
 }
 
-function checkMatches(){
+function draw(){
 
-    let matched = [];
-
-    // horizontal
-
-    for(let y=0;y<GRID;y++){
-
-        for(let x=0;x<GRID-2;x++){
-
-            const a = board[y][x];
-            const b = board[y][x+1];
-            const c = board[y][x+2];
-
-            if(
-                a && b && c &&
-                a.color === b.color &&
-                b.color === c.color
-            ){
-
-                matched.push([x,y]);
-                matched.push([x+1,y]);
-                matched.push([x+2,y]);
-            }
-        }
-    }
-
-    // vertical
-
-    for(let x=0;x<GRID;x++){
-
-        for(let y=0;y<GRID-2;y++){
-
-            const a = board[y][x];
-            const b = board[y+1][x];
-            const c = board[y+2][x];
-
-            if(
-                a && b && c &&
-                a.color === b.color &&
-                b.color === c.color
-            ){
-
-                matched.push([x,y]);
-                matched.push([x,y+1]);
-                matched.push([x,y+2]);
-            }
-        }
-    }
-
-    if(matched.length > 0){
-
-        matched.forEach(m=>{
-
-            board[m[1]][m[0]] = null;
-        });
-
-        dropBlocks();
-
-        score += matched.length;
-
-        document.getElementById("score").innerText =
-        "❤️ " + score;
-
-        showPhrase();
-    }
-}
-
-function dropBlocks(){
-
-    for(let x=0;x<GRID;x++){
-
-        for(let y=GRID-1;y>=0;y--){
-
-            if(board[y][x] === null){
-
-                for(let yy=y-1;yy>=0;yy--){
-
-                    if(board[yy][x]){
-
-                        board[y][x] = board[yy][x];
-
-                        board[yy][x] = null;
-
-                        break;
-                    }
-                }
-            }
-        }
-
-        for(let y=0;y<GRID;y++){
-
-            if(board[y][x] === null){
-
-                board[y][x] = randomBlock();
-            }
-        }
-    }
-}
-
-function showPhrase(){
-
-    const speech =
-    document.getElementById("speech");
-
-    speech.innerText = phrases[
-        Math.floor(Math.random()*phrases.length)
-    ];
-}
-
-canvas.addEventListener("click", e=>{
-
-    const rect = canvas.getBoundingClientRect();
-
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    const x = Math.floor((mx-20)/SIZE);
-    const y = Math.floor((my-120)/SIZE);
-
-    if(
-        x >= 0 &&
-        x < GRID &&
-        y >= 0 &&
-        y < GRID
-    ){
-
-        if(board[y][x]){
-
-            const color = board[y][x].color;
-
-            removeConnected(x,y,color);
-
-            dropBlocks();
-
-            checkMatches();
-        }
-    }
-});
-
-function removeConnected(x,y,color){
-
-    if(
-        x < 0 ||
-        y < 0 ||
-        x >= GRID ||
-        y >= GRID
-    ) return;
-
-    const block = board[y][x];
-
-    if(!block) return;
-
-    if(block.color !== color) return;
-
-    board[y][x] = null;
-
-    score++;
-
-    removeConnected(x+1,y,color);
-    removeConnected(x-1,y,color);
-    removeConnected(x,y+1,color);
-    removeConnected(x,y-1,color);
-}
-
-function gameLoop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
     drawBoard();
 
-    requestAnimationFrame(gameLoop);
+    drawPieces();
+
+    requestAnimationFrame(draw);
 }
 
-gameLoop();
+draw();
 
 </script>
 </body>
