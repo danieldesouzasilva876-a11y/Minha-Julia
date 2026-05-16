@@ -2,1270 +2,670 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="
-width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no
-"
-/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Love Block Blast ❤️</title>
 
 <style>
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
 }
 
 body{
-
-    overflow:hidden;
-    touch-action:none;
-    font-family:Arial;
-
-    background:
-    radial-gradient(
-        circle at top,
-        #8ea2ff 0%,
-        #7084ff 35%,
-        #5d72ff 100%
-    );
-
-    height:100vh;
+overflow:hidden;
+font-family:Arial, sans-serif;
+background:linear-gradient(180deg,#7486ff,#6070ff);
+touch-action:none;
 }
 
-/* ===== MENU ===== */
+canvas{
+position:fixed;
+inset:0;
+}
 
 #menu{
-
-    position:fixed;
-    inset:0;
-
-    display:flex;
-    flex-direction:column;
-
-    align-items:center;
-    justify-content:center;
-
-    background:
-    linear-gradient(
-        180deg,
-        #6277ff,
-        #8092ff
-    );
-
-    z-index:999;
+position:fixed;
+inset:0;
+z-index:999;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+background:radial-gradient(circle at top,#8ea2ff,#5b6cff);
 }
 
-#menuGirl{
-
-    width:220px;
-
-    animation:floatGirl 4s ease-in-out infinite;
-
-    filter:
-    drop-shadow(0 0 25px rgba(255,105,180,0.4));
+#menu img{
+width:230px;
+filter:drop-shadow(0 0 25px rgba(255,255,255,.3));
+animation:float 4s ease-in-out infinite;
 }
 
-#title{
-
-    color:white;
-
-    font-size:38px;
-
-    font-weight:bold;
-
-    margin-top:15px;
-
-    text-shadow:
-    0 0 20px rgba(0,0,0,0.25);
+#menu h1{
+color:white;
+font-size:42px;
+margin-top:10px;
+text-shadow:0 0 20px rgba(0,0,0,.25);
 }
 
-#subtitle{
-
-    color:white;
-
-    margin-top:8px;
-
-    font-size:16px;
-
-    opacity:0.95;
+#menu p{
+color:white;
+margin-top:8px;
+font-size:18px;
+opacity:.9;
 }
 
 #startBtn{
-
-    margin-top:35px;
-
-    border:none;
-
-    background:white;
-
-    color:#ff1493;
-
-    font-size:24px;
-
-    font-weight:bold;
-
-    padding:18px 45px;
-
-    border-radius:40px;
-
-    box-shadow:
-    0 12px 25px rgba(0,0,0,0.25);
-
-    transition:0.2s;
+margin-top:35px;
+border:none;
+padding:18px 48px;
+font-size:24px;
+font-weight:bold;
+border-radius:40px;
+background:white;
+color:#ff1493;
+box-shadow:0 10px 25px rgba(0,0,0,.25);
 }
 
 #startBtn:active{
-
-    transform:scale(0.95);
+transform:scale(.95);
 }
-
-/* ===== PERSONAGEM ===== */
 
 #girl{
-
-    position:absolute;
-
-    right:-15px;
-
-    top:15px;
-
-    width:120px;
-
-    z-index:5;
-
-    pointer-events:none;
-
-    opacity:0.95;
-
-    object-fit:contain;
-
-    filter:
-    drop-shadow(0 0 12px rgba(255,105,180,0.18));
-
-    animation:floatGirl 4s ease-in-out infinite;
+position:fixed;
+top:8px;
+right:-8px;
+width:115px;
+z-index:10;
+pointer-events:none;
+filter:drop-shadow(0 0 15px rgba(255,105,180,.25));
+animation:float 4s ease-in-out infinite;
 }
-
-@keyframes floatGirl{
-
-    0%{
-        transform:translateY(0px);
-    }
-
-    50%{
-        transform:translateY(8px);
-    }
-
-    100%{
-        transform:translateY(0px);
-    }
-}
-
-/* ===== FALA ===== */
 
 #speech{
-
-    position:absolute;
-
-    top:120px;
-
-    right:15px;
-
-    left:auto;
-
-    background:white;
-
-    color:#ff1493;
-
-    padding:10px 16px;
-
-    border-radius:18px;
-
-    font-size:14px;
-
-    font-weight:bold;
-
-    box-shadow:
-    0 0 15px rgba(0,0,0,0.2);
-
-    opacity:0;
-
-    transform:
-    translateY(10px)
-    scale(0.9);
-
-    transition:0.25s;
-
-    z-index:30;
+position:fixed;
+right:12px;
+top:120px;
+background:white;
+padding:10px 15px;
+border-radius:18px;
+font-weight:bold;
+color:#ff1493;
+font-size:14px;
+opacity:0;
+transform:translateY(10px) scale(.9);
+transition:.3s;
+box-shadow:0 8px 18px rgba(0,0,0,.2);
+z-index:20;
 }
 
 #speech.show{
-
-    opacity:1;
-
-    transform:
-    translateY(0)
-    scale(1);
+opacity:1;
+transform:translateY(0) scale(1);
 }
 
-/* ===== SCORE ===== */
-
 #score{
-
-    position:absolute;
-
-    top:18px;
-    left:15px;
-
-    color:#ffd54f;
-
-    font-size:28px;
-
-    font-weight:bold;
-
-    z-index:30;
-
-    text-shadow:
-    0 0 12px rgba(0,0,0,0.25);
+position:fixed;
+left:15px;
+top:15px;
+font-size:32px;
+font-weight:bold;
+color:#ffd54f;
+text-shadow:0 0 15px rgba(0,0,0,.3);
+z-index:30;
 }
 
 #combo{
-
-    position:absolute;
-
-    top:58px;
-    left:15px;
-
-    color:white;
-
-    font-size:18px;
-
-    font-weight:bold;
-
-    z-index:30;
+position:fixed;
+left:15px;
+top:58px;
+font-size:22px;
+font-weight:bold;
+color:white;
+z-index:30;
 }
 
-/* ===== COMBO TEXT ===== */
-
-#comboText{
-
-    position:absolute;
-
-    left:50%;
-    top:50%;
-
-    transform:
-    translate(-50%,-50%)
-    scale(0.5);
-
-    font-size:52px;
-
-    font-weight:bold;
-
-    color:white;
-
-    opacity:0;
-
-    z-index:999;
-
-    text-shadow:
-    0 0 25px rgba(255,255,255,0.45);
-
-    transition:0.35s;
+#comboBig{
+position:fixed;
+left:50%;
+top:50%;
+transform:translate(-50%,-50%) scale(.5);
+font-size:55px;
+font-weight:bold;
+color:white;
+opacity:0;
+transition:.3s;
+z-index:100;
+text-shadow:0 0 30px rgba(255,255,255,.6);
 }
 
-#comboText.show{
-
-    opacity:1;
-
-    transform:
-    translate(-50%,-50%)
-    scale(1);
+#comboBig.show{
+opacity:1;
+transform:translate(-50%,-50%) scale(1);
 }
 
-/* ===== CANVAS ===== */
-
-canvas{
-
-    position:absolute;
-
-    inset:0;
-
-    width:100%;
-    height:100%;
+@keyframes float{
+0%{transform:translateY(0)}
+50%{transform:translateY(8px)}
+100%{transform:translateY(0)}
 }
 
 </style>
 </head>
 <body>
 
-<!-- MENU -->
-
 <div id="menu">
-
-<img
-src="julia.png"
-id="menuGirl"
->
-
-<div id="title">
-Love Block Blast ❤️
+<img src="julia.png">
+<h1>Love Block Blast ❤️</h1>
+<p>Feito por Daniel ❤️</p>
+<button id="startBtn">Iniciar Jogo</button>
 </div>
 
-<div id="subtitle">
-Feito por Daniel ❤️
-</div>
+<div id="score">👑 0</div>
+<div id="combo">🔥 Combo x0</div>
+<div id="comboBig">COMBO!</div>
 
-<button id="startBtn">
-Iniciar Jogo
-</button>
+<img src="julia.png" id="girl">
+<div id="speech">Te amo ❤️</div>
 
-</div>
-
-<!-- HUD -->
-
-<div id="score">
-👑 0
-</div>
-
-<div id="combo">
-🔥 Combo x0
-</div>
-
-<div id="comboText">
-COMBO!
-</div>
-
-<img
-src="julia.png"
-id="girl"
-draggable="false"
->
-
-<div id="speech">
-Te amo ❤️
-</div>
+<audio id="bgm" src="audio.mp3" loop></audio>
 
 <canvas id="game"></canvas>
 
 <script>
 
-const canvas =
-document.getElementById("game");
-
-const ctx =
-canvas.getContext("2d");
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
 
 function resize(){
-
-    canvas.width =
-    window.innerWidth;
-
-    canvas.height =
-    window.innerHeight;
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 }
-
 resize();
+addEventListener('resize',resize);
 
-window.addEventListener(
-"resize",
-resize
-);
+const GRID=8;
+const CELL=Math.min(innerWidth*0.09,48);
+const boardX=(innerWidth-(GRID*CELL))/2;
+const boardY=190;
 
-/* ===== MENU ===== */
-
-document
-.getElementById("startBtn")
-.onclick = ()=>{
-
-    document
-    .getElementById("menu")
-    .style.display = "none";
-};
-
-/* ===== CONFIG ===== */
-
-const GRID = 8;
-
-let CELL =
-Math.min(
-window.innerWidth*0.09,
-48
-);
-
-/* CENTRALIZADO */
-
-let boardX =
-(window.innerWidth-(CELL*GRID))/2;
-
-/* MAIS BAIXO */
-
-let boardY = 210;
-
-/* ===== SCORE ===== */
-
-let score = 0;
-
-let combo = 0;
-
-/* ===== TABULEIRO ===== */
-
-const board = [];
-
+const board=[];
 for(let y=0;y<GRID;y++){
-
-    board[y] = [];
-
-    for(let x=0;x<GRID;x++){
-
-        board[y][x] = null;
-    }
+board[y]=[];
+for(let x=0;x<GRID;x++) board[y][x]=null;
 }
 
-/* ===== FRASES ===== */
+const colors=['#ff4d6d','#4cc9f0','#ffd60a','#7bff7b'];
 
-const phrases = [
-
-"Te amo ❤️",
-"Minha baixinha ❤️",
-"Morena do Daniel ❤️",
-"Você é perfeita ❤️",
-"Meu amor ❤️",
-"Você é minha paz ❤️",
-"Meu coração é seu ❤️",
-"Você me faz feliz ❤️",
-"Linda demais ❤️",
-"Você é meu mundo ❤️"
-
+const phrases=[
+'Você é minha paz ❤️',
+'Minha baixinha ❤️',
+'Te amo demais ❤️',
+'Morena do Daniel ❤️',
+'Você é perfeita ❤️',
+'Você me faz feliz ❤️',
+'Linda demais ❤️',
+'Meu amor ❤️'
 ];
 
-/* ===== CORES ===== */
-
-const colors = [
-
-"#ff4d6d",
-"#4cc9f0",
-"#ffd60a",
-"#7bff7b"
-
-];
-
-/* ===== PEÇAS ===== */
-
-const SHAPES = [
-
+const SHAPES=[
 [[1]],
 [[1,1]],
 [[1],[1]],
-
 [[1,1,1]],
 [[1],[1],[1]],
-
 [[1,1],[1,1]],
-
 [[1,1,1,1]],
 [[1],[1],[1],[1]],
-
 [[1,1,1,1,1]],
 [[1],[1],[1],[1],[1]],
-
 [[1,1,1],[0,1,0]],
-
 [[1,0],[1,1]],
-
 [[0,1],[1,1]],
-
 [[1,1,0],[0,1,1]],
-
 [[1,1,1],[1,0,0]],
-
 [[1,1,1],[0,0,1]],
-
-[[1,1,1],
- [1,1,1]],
-
-[[1,1,1],
- [1,1,1],
- [1,1,1]]
-
+[[1,1,1],[1,1,1]],
+[[1,1,1],[1,1,1],[1,1,1]],
+[[1,1,1,1],[0,0,0,1]],
+[[1,0,0],[1,1,1],[0,0,1]],
+[[1,1,1],[1,0,1],[1,1,1]]
 ];
 
-function randomColor(){
-
-    return colors[
-        Math.floor(
-            Math.random()*colors.length
-        )
-    ];
+function rand(arr){
+return arr[Math.floor(Math.random()*arr.length)];
 }
 
-function randomPiece(){
-
-    return {
-
-        shape:
-        SHAPES[
-            Math.floor(
-                Math.random()*SHAPES.length
-            )
-        ],
-
-        color:randomColor(),
-
-        used:false
-    };
+function makePiece(){
+return {
+shape:rand(SHAPES),
+color:rand(colors),
+used:false
+};
 }
 
-function generatePieces(){
+let pieces=[makePiece(),makePiece(),makePiece()];
+let score=0;
+let combo=0;
+let dragging=null;
+let highlights=[];
+let particles=[];
+let stars=[];
 
-    return [
-
-        randomPiece(),
-        randomPiece(),
-        randomPiece()
-
-    ];
+for(let i=0;i<70;i++){
+stars.push({
+x:Math.random()*innerWidth,
+y:Math.random()*innerHeight,
+r:Math.random()*2,
+a:Math.random()
+});
 }
-
-let pieces =
-generatePieces();
-
-let highlightCells = [];
-
-let dragging = null;
-
-let particles = [];
-
-/* ===== POS ===== */
 
 function getPos(e){
-
-    const rect =
-    canvas.getBoundingClientRect();
-
-    return {
-
-        x:e.touches
-        ? e.touches[0].clientX-rect.left
-        : e.clientX-rect.left,
-
-        y:e.touches
-        ? e.touches[0].clientY-rect.top
-        : e.clientY-rect.top
-    };
+const r=canvas.getBoundingClientRect();
+return {
+x:e.touches?e.touches[0].clientX-r.left:e.clientX-r.left,
+y:e.touches?e.touches[0].clientY-r.top:e.clientY-r.top
+};
 }
 
-/* ===== DRAG ===== */
-
 function startDrag(e){
+const p=getPos(e);
 
-    const pos =
-    getPos(e);
+pieces.forEach((piece,i)=>{
 
-    pieces.forEach((piece,index)=>{
+if(piece.used) return;
 
-        if(piece.used) return;
+const px=25+i*(CELL*3.1);
+const py=canvas.height-160;
 
-        const px =
-        25 + index*(CELL*2.9);
+if(
+p.x>px&&
+p.x<px+180&&
+p.y>py&&
+p.y<py+180
+){
 
-        const py =
-        canvas.height-150;
-
-        if(
-
-            pos.x > px &&
-            pos.x < px+180 &&
-
-            pos.y > py &&
-            pos.y < py+180
-
-        ){
-
-            dragging = {
-
-                piece,
-                index,
-
-                x:pos.x,
-                y:pos.y
-            };
-        }
-    });
+dragging={piece,index:i,x:p.x,y:p.y};
+}
+});
 }
 
 function moveDrag(e){
-
-    if(dragging){
-
-        const pos =
-        getPos(e);
-
-        dragging.x = pos.x;
-        dragging.y = pos.y;
-
-        updateHighlight();
-    }
+if(!dragging) return;
+const p=getPos(e);
+dragging.x=p.x;
+dragging.y=p.y;
+updateHighlight();
 }
 
 function endDrag(){
 
-    if(dragging){
+if(!dragging) return;
 
-        const gx =
-        Math.floor(
-            (dragging.x-boardX)/CELL
-        );
+const gx=Math.floor((dragging.x-boardX)/CELL);
+const gy=Math.floor((dragging.y-boardY)/CELL);
 
-        const gy =
-        Math.floor(
-            (dragging.y-boardY)/CELL
-        );
+if(canPlace(dragging.piece,gx,gy)){
 
-        if(
-            canPlace(
-                dragging.piece,
-                gx,
-                gy
-            )
-        ){
+placePiece(dragging.piece,gx,gy);
 
-            placePiece(
-                dragging.piece,
-                gx,
-                gy
-            );
+pieces[dragging.index].used=true;
 
-            pieces[
-                dragging.index
-            ].used = true;
+explode(gx,gy,dragging.piece.color);
 
-            createParticles(
-                gx,
-                gy,
-                dragging.piece.color
-            );
+const clear=clearLines();
 
-            const cleared =
-            clearLines();
-
-            if(cleared){
-
-                combo++;
-
-                showPhrase();
-
-                showCombo();
-
-            }else{
-
-                combo = 0;
-            }
-
-            updateUI();
-
-            checkPieces();
-        }
-
-        highlightCells = [];
-
-        dragging = null;
-    }
+if(clear){
+combo++;
+showCombo();
+showPhrase();
+if(navigator.vibrate) navigator.vibrate(80);
+}else{
+combo=0;
 }
 
-/* ===== HIGHLIGHT ===== */
+updateUI();
+checkPieces();
+}
+
+highlights=[];
+dragging=null;
+}
 
 function updateHighlight(){
 
-    highlightCells = [];
+highlights=[];
 
-    if(!dragging) return;
+if(!dragging) return;
 
-    const gx =
-    Math.floor(
-        (dragging.x-boardX)/CELL
-    );
+const gx=Math.floor((dragging.x-boardX)/CELL);
+const gy=Math.floor((dragging.y-boardY)/CELL);
 
-    const gy =
-    Math.floor(
-        (dragging.y-boardY)/CELL
-    );
+if(canPlace(dragging.piece,gx,gy)){
 
-    if(
-        canPlace(
-            dragging.piece,
-            gx,
-            gy
-        )
-    ){
+for(let y=0;y<dragging.piece.shape.length;y++){
+for(let x=0;x<dragging.piece.shape[y].length;x++){
 
-        for(let y=0;
-            y<dragging.piece.shape.length;
-            y++){
+if(dragging.piece.shape[y][x]){
 
-            for(let x=0;
-                x<dragging.piece.shape[y].length;
-                x++){
-
-                if(
-                    dragging.piece.shape[y][x]
-                ){
-
-                    highlightCells.push({
-
-                        x:gx+x,
-                        y:gy+y
-                    });
-                }
-            }
-        }
-    }
+highlights.push({x:gx+x,y:gy+y});
 }
-
-/* ===== VALIDAR ===== */
+}
+}
+}
+}
 
 function canPlace(piece,gx,gy){
 
-    for(let y=0;
-        y<piece.shape.length;
-        y++){
+for(let y=0;y<piece.shape.length;y++){
+for(let x=0;x<piece.shape[y].length;x++){
 
-        for(let x=0;
-            x<piece.shape[y].length;
-            x++){
+if(piece.shape[y][x]){
 
-            if(piece.shape[y][x]){
+const bx=gx+x;
+const by=gy+y;
 
-                const bx = gx+x;
-                const by = gy+y;
-
-                if(
-
-                    bx < 0 ||
-                    by < 0 ||
-
-                    bx >= GRID ||
-                    by >= GRID
-
-                ){
-
-                    return false;
-                }
-
-                if(board[by][bx]){
-
-                    return false;
-                }
-            }
-        }
-    }
-
-    return true;
+if(bx<0||by<0||bx>=GRID||by>=GRID) return false;
+if(board[by][bx]) return false;
+}
+}
 }
 
-/* ===== PLACE ===== */
+return true;
+}
 
 function placePiece(piece,gx,gy){
 
-    let points = 0;
+let pts=0;
 
-    for(let y=0;
-        y<piece.shape.length;
-        y++){
+for(let y=0;y<piece.shape.length;y++){
+for(let x=0;x<piece.shape[y].length;x++){
 
-        for(let x=0;
-            x<piece.shape[y].length;
-            x++){
-
-            if(piece.shape[y][x]){
-
-                board[gy+y][gx+x] =
-                piece.color;
-
-                points++;
-            }
-        }
-    }
-
-    score += points;
+if(piece.shape[y][x]){
+board[gy+y][gx+x]=piece.color;
+pts++;
+}
+}
 }
 
-/* ===== CLEAR ===== */
+score+=pts;
+}
 
 function clearLines(){
 
-    let cleared = false;
+let cleared=false;
 
-    for(let y=0;y<GRID;y++){
+for(let y=0;y<GRID;y++){
 
-        let full = true;
+let full=true;
 
-        for(let x=0;x<GRID;x++){
+for(let x=0;x<GRID;x++) if(!board[y][x]) full=false;
 
-            if(!board[y][x]){
+if(full){
 
-                full = false;
-            }
-        }
+cleared=true;
 
-        if(full){
-
-            cleared = true;
-
-            for(let x=0;x<GRID;x++){
-
-                createParticles(
-                    x,
-                    y,
-                    "#fff"
-                );
-
-                board[y][x] = null;
-            }
-
-            score +=
-            100 + combo*30;
-        }
-    }
-
-    for(let x=0;x<GRID;x++){
-
-        let full = true;
-
-        for(let y=0;y<GRID;y++){
-
-            if(!board[y][x]){
-
-                full = false;
-            }
-        }
-
-        if(full){
-
-            cleared = true;
-
-            for(let y=0;y<GRID;y++){
-
-                createParticles(
-                    x,
-                    y,
-                    "#fff"
-                );
-
-                board[y][x] = null;
-            }
-
-            score +=
-            100 + combo*30;
-        }
-    }
-
-    return cleared;
+for(let x=0;x<GRID;x++){
+explode(x,y,'#fff');
+board[y][x]=null;
 }
 
-/* ===== PARTICLES ===== */
+score+=120+(combo*40);
+}
+}
 
-function createParticles(
-gx,
-gy,
+for(let x=0;x<GRID;x++){
+
+let full=true;
+
+for(let y=0;y<GRID;y++) if(!board[y][x]) full=false;
+
+if(full){
+
+cleared=true;
+
+for(let y=0;y<GRID;y++){
+explode(x,y,'#fff');
+board[y][x]=null;
+}
+
+score+=120+(combo*40);
+}
+}
+
+return cleared;
+}
+
+function explode(gx,gy,color){
+
+for(let i=0;i<14;i++){
+particles.push({
+x:boardX+gx*CELL+CELL/2,
+y:boardY+gy*CELL+CELL/2,
+vx:(Math.random()-.5)*5,
+vy:(Math.random()-.5)*5,
+a:1,
+s:Math.random()*7+3,
 color
-){
-
-    for(let i=0;i<10;i++){
-
-        particles.push({
-
-            x:
-            boardX + gx*CELL + CELL/2,
-
-            y:
-            boardY + gy*CELL + CELL/2,
-
-            vx:
-            (Math.random()-0.5)*4,
-
-            vy:
-            (Math.random()-0.5)*4,
-
-            size:
-            Math.random()*7+3,
-
-            alpha:1,
-
-            color
-        });
-    }
+});
 }
-
-/* ===== COMBO ===== */
-
-function showCombo(){
-
-    const comboText =
-    document.getElementById(
-        "comboText"
-    );
-
-    comboText.innerText =
-    "COMBO x" + combo;
-
-    comboText.classList.add(
-        "show"
-    );
-
-    setTimeout(()=>{
-
-        comboText.classList.remove(
-            "show"
-        );
-
-    },700);
 }
-
-/* ===== FRASE ===== */
 
 function showPhrase(){
 
-    const speech =
-    document.getElementById("speech");
+const s=document.getElementById('speech');
 
-    speech.innerText =
+s.innerText=rand(phrases);
 
-    phrases[
-        Math.floor(
-            Math.random()*phrases.length
-        )
-    ];
+s.classList.add('show');
 
-    speech.classList.add("show");
-
-    setTimeout(()=>{
-
-        speech.classList.remove("show");
-
-    },2200);
+setTimeout(()=>{
+s.classList.remove('show');
+},2200);
 }
 
-/* ===== UI ===== */
+function showCombo(){
+
+const c=document.getElementById('comboBig');
+
+c.innerText='COMBO x'+combo;
+
+c.classList.add('show');
+
+setTimeout(()=>{
+c.classList.remove('show');
+},700);
+}
 
 function updateUI(){
 
-    document.getElementById(
-        "score"
-    ).innerText =
-    "👑 " + score;
-
-    document.getElementById(
-        "combo"
-    ).innerText =
-    "🔥 Combo x" + combo;
+document.getElementById('score').innerText='👑 '+score;
+document.getElementById('combo').innerText='🔥 Combo x'+combo;
 }
-
-/* ===== PEÇAS ===== */
 
 function checkPieces(){
 
-    let allUsed = true;
+let all=true;
 
-    pieces.forEach(p=>{
+pieces.forEach(p=>{
+if(!p.used) all=false;
+});
 
-        if(!p.used){
-
-            allUsed = false;
-        }
-    });
-
-    if(allUsed){
-
-        pieces =
-        generatePieces();
-    }
+if(all){
+pieces=[makePiece(),makePiece(),makePiece()];
+}
 }
 
-/* ===== DESENHO ===== */
+function rrect(x,y,w,h,r,c){
 
-function roundRect(
-x,y,w,h,r,color
-){
+ctx.fillStyle=c;
+ctx.beginPath();
+ctx.moveTo(x+r,y);
+ctx.lineTo(x+w-r,y);
+ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ctx.lineTo(x+w,y+h-r);
+ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+ctx.lineTo(x+r,y+h);
+ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+ctx.lineTo(x,y+r);
+ctx.quadraticCurveTo(x,y,x+r,y);
+ctx.fill();
+}
 
-    ctx.fillStyle = color;
+function drawStars(){
 
-    ctx.beginPath();
+stars.forEach(s=>{
+ctx.globalAlpha=s.a;
+ctx.fillStyle='white';
+ctx.beginPath();
+ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+ctx.fill();
+});
 
-    ctx.moveTo(x+r,y);
-
-    ctx.lineTo(x+w-r,y);
-
-    ctx.quadraticCurveTo(
-        x+w,y,x+w,y+r
-    );
-
-    ctx.lineTo(x+w,y+h-r);
-
-    ctx.quadraticCurveTo(
-        x+w,y+h,x+w-r,y+h
-    );
-
-    ctx.lineTo(x+r,y+h);
-
-    ctx.quadraticCurveTo(
-        x,y+h,x,y+h-r
-    );
-
-    ctx.lineTo(x,y+r);
-
-    ctx.quadraticCurveTo(
-        x,y,x+r,y
-    );
-
-    ctx.fill();
+ctx.globalAlpha=1;
 }
 
 function drawBoard(){
 
-    for(let y=0;y<GRID;y++){
+for(let y=0;y<GRID;y++){
+for(let x=0;x<GRID;x++){
 
-        for(let x=0;x<GRID;x++){
+const px=boardX+x*CELL;
+const py=boardY+y*CELL;
 
-            const px =
-            boardX + x*CELL;
+rrect(px,py,CELL-4,CELL-4,10,'#1e2c78');
 
-            const py =
-            boardY + y*CELL;
+const h=highlights.find(v=>v.x===x&&v.y===y);
 
-            roundRect(
-                px,
-                py,
-                CELL-4,
-                CELL-4,
-                10,
-                "#1f2b6d"
-            );
+if(h){
 
-            const highlighted =
-            highlightCells.find(
-                h=>h.x===x&&h.y===y
-            );
+ctx.shadowColor='white';
+ctx.shadowBlur=15;
 
-            if(highlighted){
+rrect(px+1,py+1,CELL-6,CELL-6,10,'rgba(255,255,255,.28)');
 
-                roundRect(
-                    px+1,
-                    py+1,
-                    CELL-6,
-                    CELL-6,
-                    10,
-                    "rgba(255,255,255,0.35)"
-                );
-            }
-
-            if(board[y][x]){
-
-                roundRect(
-                    px+2,
-                    py+2,
-                    CELL-8,
-                    CELL-8,
-                    10,
-                    board[y][x]
-                );
-
-                roundRect(
-                    px+5,
-                    py+5,
-                    CELL-20,
-                    9,
-                    5,
-                    "rgba(255,255,255,0.28)"
-                );
-            }
-        }
-    }
+ctx.shadowBlur=0;
 }
 
-function drawPiece(
-piece,
-px,
-py
-){
+if(board[y][x]){
 
-    for(let y=0;
-        y<piece.shape.length;
-        y++){
+ctx.shadowColor=board[y][x];
+ctx.shadowBlur=12;
 
-        for(let x=0;
-            x<piece.shape[y].length;
-            x++){
+rrect(px+2,py+2,CELL-8,CELL-8,10,board[y][x]);
 
-            if(piece.shape[y][x]){
+rrect(px+6,py+6,CELL-22,9,5,'rgba(255,255,255,.25)');
 
-                const dx =
-                px + x*CELL;
+ctx.shadowBlur=0;
+}
+}
+}
+}
 
-                const dy =
-                py + y*CELL;
+function drawPiece(piece,px,py){
 
-                roundRect(
-                    dx,
-                    dy,
-                    CELL-8,
-                    CELL-8,
-                    10,
-                    piece.color
-                );
+for(let y=0;y<piece.shape.length;y++){
+for(let x=0;x<piece.shape[y].length;x++){
 
-                roundRect(
-                    dx+5,
-                    dy+5,
-                    CELL-20,
-                    9,
-                    5,
-                    "rgba(255,255,255,0.28)"
-                );
-            }
-        }
-    }
+if(piece.shape[y][x]){
+
+const dx=px+x*CELL;
+const dy=py+y*CELL;
+
+ctx.shadowColor=piece.color;
+ctx.shadowBlur=18;
+
+rrect(dx,dy,CELL-8,CELL-8,10,piece.color);
+
+rrect(dx+5,dy+5,CELL-20,9,5,'rgba(255,255,255,.25)');
+
+ctx.shadowBlur=0;
+}
+}
+}
 }
 
 function drawPieces(){
 
-    pieces.forEach((piece,index)=>{
+pieces.forEach((piece,i)=>{
 
-        if(piece.used) return;
+if(piece.used) return;
 
-        if(
-            dragging &&
-            dragging.index===index
-        ){
-            return;
-        }
+if(dragging&&dragging.index===i) return;
 
-        drawPiece(
+const px=25+i*(CELL*3.1);
+const py=canvas.height-160;
 
-            piece,
+drawPiece(piece,px,py);
+});
 
-            25 + index*(CELL*2.9),
+if(dragging){
 
-            canvas.height-150
-        );
-    });
+ctx.globalAlpha=.92;
 
-    if(dragging){
+drawPiece(
+dragging.piece,
+dragging.x-(CELL/2),
+dragging.y-(CELL/2)
+);
 
-        ctx.save();
-
-        ctx.shadowColor =
-        "rgba(255,255,255,0.5)";
-
-        ctx.shadowBlur = 30;
-
-        drawPiece(
-
-            dragging.piece,
-
-            dragging.x-(CELL/2),
-
-            dragging.y-(CELL/2)
-        );
-
-        ctx.restore();
-    }
+ctx.globalAlpha=1;
+}
 }
 
 function drawParticles(){
 
-    particles.forEach((p,index)=>{
+particles.forEach((p,i)=>{
 
-        ctx.globalAlpha =
-        p.alpha;
+ctx.globalAlpha=p.a;
+ctx.fillStyle=p.color;
 
-        ctx.fillStyle =
-        p.color;
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.s,0,Math.PI*2);
+ctx.fill();
 
-        ctx.beginPath();
+p.x+=p.vx;
+p.y+=p.vy;
+p.a-=0.02;
 
-        ctx.arc(
-            p.x,
-            p.y,
-            p.size,
-            0,
-            Math.PI*2
-        );
+if(p.a<=0) particles.splice(i,1);
+});
 
-        ctx.fill();
-
-        p.x += p.vx;
-        p.y += p.vy;
-
-        p.alpha -= 0.02;
-
-        if(p.alpha <= 0){
-
-            particles.splice(index,1);
-        }
-    });
-
-    ctx.globalAlpha = 1;
+ctx.globalAlpha=1;
 }
 
-/* ===== EVENTOS ===== */
+canvas.addEventListener('touchstart',startDrag);
+canvas.addEventListener('touchmove',moveDrag);
+canvas.addEventListener('touchend',endDrag);
 
-canvas.addEventListener(
-"touchstart",
-startDrag
-);
+canvas.addEventListener('mousedown',startDrag);
+canvas.addEventListener('mousemove',moveDrag);
+canvas.addEventListener('mouseup',endDrag);
 
-canvas.addEventListener(
-"touchmove",
-moveDrag
-);
+document.getElementById('startBtn').onclick=()=>{
 
-canvas.addEventListener(
-"touchend",
-endDrag
-);
+document.getElementById('menu').style.display='none';
 
-canvas.addEventListener(
-"mousedown",
-startDrag
-);
+const bgm=document.getElementById('bgm');
 
-canvas.addEventListener(
-"mousemove",
-moveDrag
-);
+bgm.volume=.6;
 
-canvas.addEventListener(
-"mouseup",
-endDrag
-);
-
-/* ===== LOOP ===== */
+bgm.play();
+};
 
 function loop(){
 
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
+ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    drawBoard();
+drawStars();
+drawBoard();
+drawPieces();
+drawParticles();
 
-    drawPieces();
-
-    drawParticles();
-
-    requestAnimationFrame(loop);
+requestAnimationFrame(loop);
 }
 
 loop();
