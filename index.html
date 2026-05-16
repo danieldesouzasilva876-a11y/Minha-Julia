@@ -307,19 +307,21 @@ const ctx      = canvas.getContext('2d');
 const bgCanvas = document.getElementById('bgCanvas');
 const bgCtx    = bgCanvas.getContext('2d');
 
+let GRID  = 8;
+let CELL  = Math.min(innerWidth * 0.09, 46);
+let boardX= (innerWidth - GRID*CELL) / 2;
+let boardY= 158;
+
 function resize(){
   canvas.width = bgCanvas.width = innerWidth;
   canvas.height= bgCanvas.height= innerHeight;
+  CELL  = Math.min(innerWidth * 0.10, 46);
+  boardX= (innerWidth - GRID*CELL) / 2;
 }
 resize();
 addEventListener('resize', resize);
 
 // ─── CONFIG ───
-const GRID  = 8;
-const CELL  = Math.min(innerWidth * 0.09, 46);
-const boardX= (innerWidth - GRID*CELL) / 2;
-const boardY= 158;
-
 const PALETTES = [
   ['#ff4d8d','#4cc9f0','#ffd60a','#7bff7b'],
   ['#ff6b35','#f7c59f','#a8dadc','#457b9d'],
@@ -419,38 +421,61 @@ function showLevelUp(){
 // ─── DRAG ───
 function getPos(e){
   const r=canvas.getBoundingClientRect();
-  return {
-    x:e.touches?e.touches[0].clientX-r.left:e.clientX-r.left,
-    y:e.touches?e.touches[0].clientY-r.top:e.clientY-r.top
-  };
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX - r.left, y: clientY - r.top };
 }
 
 function pieceTrayX(i){
   const slotW=innerWidth/3;
-  return slotW*i + slotW/2 - (pieces[i].shape[0].length*CELL)/2;
+  return slotW*i + slotW/2 - (pieces[i].shape[0].length*CELL*0.7)/2;
 }
 
 function startDrag(e){
   if(!gameRunning) return;
+  if(e.touches) e.preventDefault();
   const p=getPos(e);
+  
   pieces.forEach((piece,i)=>{
     if(piece.used) return;
-    const px=pieceTrayX(i), py=canvas.height-130;
-    if(p.x>px-8&&p.x<px+CELL*5&&p.y>py-8&&p.y<py+CELL*5){
-      dragging={piece,index:i,x:p.x,y:p.y};
+    const px=pieceTrayX(i), py=canvas.height-110;
+    const pw=piece.shape[0].length*CELL*0.7;
+    const ph=piece.shape.length*CELL*0.7;
+    
+    // Área de colisão aumentada para facilitar toque no celular
+    if(p.x>px-20 && p.x<px+pw+20 && p.y>py-20 && p.y<py+ph+20){
+      dragging={
+        piece,
+        index:i,
+        offsetX: p.x - px,
+        offsetY: p.y - py,
+        x:p.x,
+        y:p.y
+      };
     }
   });
 }
+
 function moveDrag(e){
   if(!dragging) return;
+  if(e.touches) e.preventDefault();
   const p=getPos(e);
-  dragging.x=p.x; dragging.y=p.y;
+  
+  dragging.x=p.x; 
+  // No celular, adicionamos um deslocamento para cima (-60) para o dedo não cobrir o bloco
+  dragging.y=e.touches ? p.y - 60 : p.y; 
+  
   updateHighlight();
 }
-function endDrag(){
+
+function endDrag(e){
   if(!dragging) return;
-  const gx=Math.floor((dragging.x-boardX)/CELL);
-  const gy=Math.floor((dragging.y-boardY)/CELL);
+  if(e.touches) e.preventDefault();
+  
+  // Alinha pelo canto superior esquerdo visual da peça que está sendo arrastada
+  const gx=Math.round((dragging.x - boardX - (CELL/2)) / CELL);
+  const gy=Math.round((dragging.y - boardY - (CELL/2)) / CELL);
+  
   if(canPlace(dragging.piece,gx,gy)){
     placePiece(dragging.piece,gx,gy);
     pieces[dragging.index].used=true;
@@ -474,8 +499,8 @@ function endDrag(){
 function updateHighlight(){
   highlights=[];
   if(!dragging) return;
-  const gx=Math.floor((dragging.x-boardX)/CELL);
-  const gy=Math.floor((dragging.y-boardY)/CELL);
+  const gx=Math.round((dragging.x - boardX - (CELL/2)) / CELL);
+  const gy=Math.round((dragging.y - boardY - (CELL/2)) / CELL);
   if(canPlace(dragging.piece,gx,gy)){
     dragging.piece.shape.forEach((row,y)=>row.forEach((v,x)=>{
       if(v) highlights.push({x:gx+x,y:gy+y});
@@ -628,6 +653,7 @@ function goToMenu(){
 
 // ─── DRAW ───
 function rrect(x,y,w,h,r,c,shadow,blur){
+  ctx.save(); // Salva o estado para a sombra não bugar as renderizações seguintes
   if(shadow){ ctx.shadowColor=shadow; ctx.shadowBlur=blur||0; }
   ctx.fillStyle=c;
   ctx.beginPath();
@@ -640,7 +666,7 @@ function rrect(x,y,w,h,r,c,shadow,blur){
   ctx.lineTo(x,y+r);
   ctx.quadraticCurveTo(x,y,x+r,y);
   ctx.fill();
-  if(shadow) ctx.shadowBlur=0;
+  ctx.restore(); // Restaura o estado limpo sem sombras acumuladas
 }
 
 function drawBoard(){
@@ -657,72 +683,79 @@ function drawBoard(){
   for(let y=0;y<GRID;y++){
     for(let x=0;x<GRID;x++){
       const px=boardX+x*CELL, py=boardY+y*CELL;
-      rrect(px+2,py+2,CELL-6,CELL-6,9,'rgba(255,255,255,.055)');
+      rrect(px+2,py+2,CELL-4,CELL-4,8,'rgba(255,255,255,.055)');
 
       if(highlights.find(v=>v.x===x&&v.y===y)){
-        rrect(px+2,py+2,CELL-6,CELL-6,9,'rgba(255,255,255,.22)','white',14);
+        rrect(px+2,py+2,CELL-4,CELL-4,8,'rgba(255,255,255,.22)','white',14);
       }
       if(board[y][x]){
         const c=board[y][x];
-        rrect(px+3,py+3,CELL-8,CELL-8,9,c,c,16);
+        rrect(px+2,py+2,CELL-4,CELL-4,8,c,c,10);
+        ctx.save();
         ctx.globalAlpha=.2;
-        rrect(px+7,py+7,CELL-20,7,4,'white');
-        ctx.globalAlpha=1;
+        rrect(px+5,py+5,CELL-10,5,3,'white');
+        ctx.restore();
       }
     }
   }
   ctx.restore();
 }
 
-function drawPiece(piece,px,py,alpha,dim){
+function drawPiece(piece,px,py,alpha,dim,scale=1){
+  ctx.save();
   ctx.globalAlpha=alpha??1;
+  const currentCell = CELL * scale;
   piece.shape.forEach((row,y)=>row.forEach((v,x)=>{
     if(v){
-      const dx=px+x*CELL, dy=py+y*CELL;
+      const dx=px+x*currentCell, dy=py+y*currentCell;
       const c=dim?'#3a3a6a':piece.color;
-      rrect(dx,dy,CELL-8,CELL-8,10,c,dim?null:c,dim?0:20);
+      rrect(dx,dy,currentCell-4,currentCell-4,8,c,dim?null:c,dim?0:10);
       if(!dim){
+        ctx.save();
         ctx.globalAlpha=(alpha??1)*.2;
-        rrect(dx+5,dy+5,CELL-20,7,4,'white');
-        ctx.globalAlpha=alpha??1;
+        rrect(dx+4,dy+4,currentCell-10,4,2,'white');
+        ctx.restore();
       }
     }
   }));
-  ctx.globalAlpha=1;
+  ctx.restore();
 }
 
 function drawPieces(){
   pieces.forEach((piece,i)=>{
     if(piece.used) return;
     if(dragging&&dragging.index===i) return;
-    const px=pieceTrayX(i), py=canvas.height-130;
+    const px=pieceTrayX(i), py=canvas.height-110;
     const fits=canFitAnywhere(piece);
-    drawPiece(piece,px,py,fits?1:.32,!fits);
+    // Peças no menu inferior ficam levemente menores (escala 0.7) para caber melhor em telas pequenas
+    drawPiece(piece,px,py,fits?1:.32,!fits,0.7);
   });
   if(dragging){
-    drawPiece(dragging.piece,dragging.x-CELL/2,dragging.y-CELL/2,.9);
+    // Ao arrastar, o bloco volta ao tamanho normal (escala 1) para encaixar perfeitamente no grid
+    drawPiece(dragging.piece,dragging.x - (CELL/2),dragging.y - (CELL/2),.9,false,1);
   }
 }
 
 function drawParticles(){
   particles.forEach((p,i)=>{
+    ctx.save();
     ctx.globalAlpha=p.a;
     ctx.fillStyle=p.color;
     if(p.type==='heart'){
       ctx.font=`${p.s*2.2}px serif`;
       ctx.textAlign='center';
       ctx.fillText('♥',p.x,p.y);
-      ctx.textAlign='left';
     } else {
       ctx.beginPath(); ctx.arc(p.x,p.y,p.s,0,Math.PI*2); ctx.fill();
     }
+    ctx.restore();
     p.x+=p.vx; p.y+=p.vy; p.vy+=.06; p.a-=.018;
     if(p.a<=0) particles.splice(i,1);
   });
-  ctx.globalAlpha=1;
 }
 
 function drawFloatingTexts(){
+  ctx.save();
   ctx.textAlign='center';
   floatingTexts.forEach((t,i)=>{
     ctx.globalAlpha=t.a;
@@ -731,11 +764,10 @@ function drawFloatingTexts(){
     ctx.shadowColor='rgba(255,77,141,.8)';
     ctx.shadowBlur=10;
     ctx.fillText(t.text,t.x,t.y);
-    ctx.shadowBlur=0;
     t.y+=t.vy; t.a-=.022;
     if(t.a<=0) floatingTexts.splice(i,1);
   });
-  ctx.globalAlpha=1; ctx.textAlign='left';
+  ctx.restore();
 }
 
 // ─── MENU HEARTS ───
@@ -758,9 +790,9 @@ function initHeartRain(){
 }
 
 // ─── EVENTS ───
-canvas.addEventListener('touchstart',startDrag,{passive:true});
-canvas.addEventListener('touchmove',moveDrag,{passive:true});
-canvas.addEventListener('touchend',endDrag);
+canvas.addEventListener('touchstart',startDrag,{passive:false});
+canvas.addEventListener('touchmove',moveDrag,{passive:false});
+canvas.addEventListener('touchend',endDrag,{passive:false});
 canvas.addEventListener('mousedown',startDrag);
 canvas.addEventListener('mousemove',moveDrag);
 canvas.addEventListener('mouseup',endDrag);
