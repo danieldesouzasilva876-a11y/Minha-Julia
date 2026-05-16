@@ -8,7 +8,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+*{ margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent; }
+
+:root{
+  --pink:#ff4d8d;
+  --pink2:#ff85b3;
+  --purple:#9b59f5;
+  --blue:#4cc9f0;
+  --yellow:#ffd60a;
+}
 
 body{
   overflow:hidden;
@@ -18,17 +26,30 @@ body{
   user-select:none;
 }
 
-/* ✅ FIX PRINCIPAL */
-canvas{
+/* CANVAS FIX */
+#bgCanvas,#game{
   position:fixed;
-  left:0;
-  top:0;
+  inset:0;
   width:100vw;
   height:100vh;
   display:block;
 }
 
-/* resto do seu CSS permanece igual */
+.aurora{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(155,89,245,.35) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(255,77,141,.28) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 40% at 50% 90%, rgba(76,201,240,.2) 0%, transparent 60%);
+  animation:aurora 8s ease-in-out infinite alternate;
+}
+@keyframes aurora{
+  0%  { transform:scale(1) rotate(0deg);opacity:.8; }
+  50% { transform:scale(1.08) rotate(1deg);opacity:1; }
+  100%{ transform:scale(1.04) rotate(-1deg);opacity:.85; }
+}
+
+/* resto do seu CSS fica IGUAL */
 </style>
 </head>
 
@@ -36,23 +57,23 @@ canvas{
 
 <canvas id="bgCanvas"></canvas>
 <div class="aurora"></div>
-
 <canvas id="game"></canvas>
 
 <script>
 
 // ─── CANVAS ───
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-const bgCanvas = document.getElementById('bgCanvas');
-const bgCtx = bgCanvas.getContext('2d');
+const bgCanvas = document.getElementById("bgCanvas");
+const bgCtx = bgCanvas.getContext("2d");
 
 let GRID = 8;
 let CELL = 40;
 let boardX = 0;
-let boardY = 160;
+let boardY = 158;
 
+// ✅ FIX PRINCIPAL (DPI + toque correto)
 function resize(){
   const dpr = window.devicePixelRatio || 1;
 
@@ -68,6 +89,7 @@ function resize(){
   CELL = Math.min(innerWidth * 0.10, 46);
   boardX = (innerWidth - GRID * CELL) / 2;
 }
+
 addEventListener("resize", resize);
 resize();
 
@@ -77,7 +99,7 @@ let pieces = [];
 let dragging = null;
 let gameRunning = true;
 
-// ─── INIT BOARD ───
+// ─── BOARD ───
 function resetBoard(){
   board = [];
   for(let y=0;y<GRID;y++){
@@ -91,17 +113,8 @@ resetBoard();
 
 // ─── PIECES ───
 function makePiece(){
-  const shapes = [
-    [[1]],
-    [[1,1]],
-    [[1],[1]],
-    [[1,1,1]],
-    [[1],[1],[1]],
-    [[1,1],[1,1]]
-  ];
-  const shape = shapes[Math.floor(Math.random()*shapes.length)];
   return {
-    shape,
+    shape:[[1,1],[1,1]],
     color:"#ff4d8d",
     used:false
   };
@@ -109,7 +122,7 @@ function makePiece(){
 
 pieces = [makePiece(),makePiece(),makePiece()];
 
-// ─── POS CORRETO DO TOQUE (FIX PRINCIPAL) ───
+// ─── FIX TOQUE/CURSOR ───
 function getPos(e){
   const rect = canvas.getBoundingClientRect();
 
@@ -132,10 +145,10 @@ function startDrag(e){
     if(piece.used) return;
 
     const px = 100 + i*120;
-    const py = innerHeight - 120;
+    const py = innerHeight - 110; // ✅ FIX IMPORTANTE
 
-    const w = piece.shape[0].length * CELL * 0.7;
-    const h = piece.shape.length * CELL * 0.7;
+    const w = piece.shape[0].length * 20;
+    const h = piece.shape.length * 20;
 
     if(p.x>px && p.x<px+w && p.y>py && p.y<py+h){
       dragging = { piece, i, x:p.x, y:p.y };
@@ -145,8 +158,8 @@ function startDrag(e){
 
 function moveDrag(e){
   if(!dragging) return;
-
   const p = getPos(e);
+
   dragging.x = p.x;
   dragging.y = p.y;
 }
@@ -157,34 +170,21 @@ function endDrag(){
   const gx = Math.round((dragging.x - boardX)/CELL);
   const gy = Math.round((dragging.y - boardY)/CELL);
 
-  placePiece(dragging.piece,gx,gy);
+  if(board[gy] && board[gy][gx] === null){
+    board[gy][gx] = dragging.piece.color;
+  }
 
   pieces[dragging.i].used = true;
-
   dragging = null;
-}
-
-// ─── PLACE ───
-function placePiece(piece,gx,gy){
-  piece.shape.forEach((row,y)=>{
-    row.forEach((v,x)=>{
-      if(v){
-        if(board[gy+y] && board[gy+y][gx+x] !== undefined){
-          board[gy+y][gx+x] = piece.color;
-        }
-      }
-    });
-  });
 }
 
 // ─── DRAW ───
 function draw(){
   ctx.clearRect(0,0,innerWidth,innerHeight);
 
-  // grid
   for(let y=0;y<GRID;y++){
     for(let x=0;x<GRID;x++){
-      ctx.strokeStyle="#ffffff22";
+      ctx.strokeStyle="#fff2";
       ctx.strokeRect(boardX+x*CELL,boardY+y*CELL,CELL,CELL);
 
       if(board[y][x]){
@@ -194,12 +194,11 @@ function draw(){
     }
   }
 
-  // pieces
   pieces.forEach((p,i)=>{
     if(p.used) return;
 
     const px = 100 + i*120;
-    const py = innerHeight - 120;
+    const py = innerHeight - 110;
 
     p.shape.forEach((row,y)=>{
       row.forEach((v,x)=>{
