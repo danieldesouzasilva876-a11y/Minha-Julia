@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Júlia Runner Deluxe ❤️</title>
+<title>Quiz da Júlia ❤️</title>
 
 <style>
+
 *{
     margin:0;
     padding:0;
@@ -14,563 +15,398 @@
 
 body{
     overflow:hidden;
-    background:black;
     font-family:Arial, sans-serif;
+    background:linear-gradient(180deg,#ff7eb3,#ffb6d9,#ffe0ec);
 }
 
 canvas{
     display:block;
-    margin:auto;
-    background:#111;
 }
 
-#menu{
+#quizBox{
+
     position:absolute;
+    bottom:40px;
+    left:50%;
+    transform:translateX(-50%);
+
+    width:700px;
+
+    background:rgba(255,255,255,0.95);
+
+    border-radius:30px;
+
+    padding:25px;
+
+    box-shadow:0 0 30px rgba(0,0,0,0.3);
+
+    z-index:10;
+}
+
+#question{
+
+    font-size:30px;
+    margin-bottom:25px;
+    color:#ff1493;
+    text-align:center;
+}
+
+.answers{
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+button{
+
+    border:none;
+    padding:18px;
+    border-radius:20px;
+    cursor:pointer;
+
+    font-size:20px;
+
+    background:#ff5fa2;
+    color:white;
+
+    transition:0.2s;
+}
+
+button:hover{
+    transform:scale(1.05);
+    background:#ff2e88;
+}
+
+#score{
+
+    position:absolute;
+    top:20px;
+    left:20px;
+
+    font-size:30px;
+    color:white;
+    text-shadow:0 0 10px black;
+}
+
+#finalScreen{
+
+    position:absolute;
+
     width:100%;
     height:100%;
-    display:flex;
+
+    background:rgba(0,0,0,0.8);
+
+    display:none;
+
     justify-content:center;
     align-items:center;
     flex-direction:column;
-    background:rgba(0,0,0,0.75);
-    z-index:10;
+
     color:white;
+
+    z-index:100;
 }
 
-#menu h1{
-    font-size:90px;
+#finalScreen h1{
+
+    font-size:80px;
     color:pink;
-    text-shadow:0 0 25px hotpink;
+    text-shadow:0 0 20px hotpink;
 }
 
-#menu p{
-    margin-top:15px;
-    font-size:25px;
+#finalScreen p{
+
+    margin-top:20px;
+    font-size:35px;
 }
 
-#playBtn{
-    margin-top:40px;
-    padding:18px 60px;
-    border:none;
-    border-radius:20px;
-    background:hotpink;
-    color:white;
-    font-size:30px;
-    cursor:pointer;
-    box-shadow:0 0 20px hotpink;
-}
 </style>
 </head>
 <body>
 
-<div id="menu">
-    <h1>JÚLIA RUNNER ❤️</h1>
-    <p>Desvie dos obstáculos e sobreviva</p>
-    <button id="playBtn">JOGAR</button>
+<div id="score">❤️ 0 / 10</div>
+
+<div id="quizBox">
+
+    <div id="question"></div>
+
+    <div class="answers">
+        <button id="a1"></button>
+        <button id="a2"></button>
+        <button id="a3"></button>
+        <button id="a4"></button>
+    </div>
+
 </div>
 
-<canvas id="game" width="1280" height="720"></canvas>
+<div id="finalScreen">
+
+    <h1>VOCÊ VENCEU ❤️</h1>
+
+    <p>Seu prêmio é um encontro comigo 😘</p>
+
+</div>
+
+<canvas id="game"></canvas>
 
 <script>
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const music = new Audio("audio.mp3");
-music.loop = true;
-music.volume = 0.5;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 const playerImg = new Image();
 playerImg.src = "julia.png";
 
-const lanes = [360, 580, 800];
-
-let currentLane = 1;
-
-const player = {
-    x: lanes[currentLane],
-    y: 470,
-    width: 140,
-    height: 180,
-    velY: 0,
-    jumping:false,
-    rotation:0
-};
-
-const gravity = 0.9;
-
-let obstacles = [];
-let particles = [];
 let hearts = [];
 
-let score = 0;
-let bestScore = localStorage.getItem("bestScore") || 0;
-
-let gameStarted = false;
-let gameOver = false;
-
-let roadOffset = 0;
-let speed = 14;
-
-function createObstacle(){
-
-    const lane = Math.floor(Math.random()*3);
-
-    obstacles.push({
-        x: lanes[lane],
-        y: -150,
-        width: 120,
-        height: 120,
-        pulse:0
-    });
-}
-
-setInterval(()=>{
-
-    if(gameStarted && !gameOver){
-        createObstacle();
-    }
-
-},900);
-
-
-function createParticles(x,y){
-
-    for(let i=0;i<10;i++){
-
-        particles.push({
-            x:x,
-            y:y,
-            size:Math.random()*6+2,
-            velX:(Math.random()-0.5)*6,
-            velY:(Math.random()-0.5)*6,
-            alpha:1
-        });
-    }
-}
-
-
-function createFloatingHearts(){
+for(let i=0;i<30;i++){
 
     hearts.push({
-        x:Math.random()*1280,
-        y:760,
-        speed:2+Math.random()*2,
-        size:20+Math.random()*30
+
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        size:20+Math.random()*30,
+        speed:1+Math.random()*2
     });
 }
 
-setInterval(createFloatingHearts,300);
+const questions = [
 
+{
+q:"Onde nos conhecemos?",
+a:["Instagram","Escola","Rua","Mercado"],
+correct:0
+},
 
-window.addEventListener("keydown", e=>{
+{
+q:"Quem se apaixonou primeiro?",
+a:["Você","Eu","Os dois","Ninguém"],
+correct:1
+},
 
-    if(e.key === "ArrowLeft"){
-        if(currentLane > 0){
-            currentLane--;
-        }
-    }
+{
+q:"Qual nossa música?",
+a:["A","B","C","D"],
+correct:0
+},
 
-    if(e.key === "ArrowRight"){
-        if(currentLane < 2){
-            currentLane++;
-        }
-    }
+{
+q:"Quem manda mais mensagem?",
+a:["Você","Eu","Os dois","Ninguém"],
+correct:0
+},
 
-    if(e.key === "ArrowUp"){
+{
+q:"Quem sente mais saudade?",
+a:["Você","Eu","Os dois","Ninguém"],
+correct:2
+},
 
-        if(!player.jumping){
-            player.velY = -20;
-            player.jumping = true;
-        }
-    }
-});
+{
+q:"Qual comida favorita?",
+a:["Pizza","Hambúrguer","Açaí","Sushi"],
+correct:1
+},
 
+{
+q:"Quem é mais ciumento?",
+a:["Você","Eu","Os dois","Ninguém"],
+correct:1
+},
 
-function update(){
+{
+q:"Qual nosso sonho?",
+a:["Viajar","Morar juntos","Ter empresa","Tudo"],
+correct:3
+},
 
-    roadOffset += speed;
+{
+q:"Quem é mais fofo?",
+a:["Você","Eu","Os dois","Ninguém"],
+correct:2
+},
 
-    speed += 0.002;
+{
+q:"Você me ama?",
+a:["Muito","Demais","Óbvio","Todas"],
+correct:3
+}
 
-    player.x += (lanes[currentLane] - player.x) * 0.18;
+];
 
-    player.velY += gravity;
-    player.y += player.velY;
+let current = 0;
+let score = 0;
 
-    if(player.y >= 470){
-        player.y = 470;
-        player.velY = 0;
-        player.jumping = false;
-    }
+const questionEl = document.getElementById("question");
 
-    obstacles.forEach((obs,index)=>{
+const buttons = [
 
-        obs.y += speed;
-        obs.pulse += 0.1;
+document.getElementById("a1"),
+document.getElementById("a2"),
+document.getElementById("a3"),
+document.getElementById("a4")
 
-        if(
-            player.x < obs.x + obs.width &&
-            player.x + player.width > obs.x &&
-            player.y < obs.y + obs.height &&
-            player.y + player.height > obs.y
-        ){
-            gameOver = true;
+];
 
-            createParticles(player.x+70, player.y+80);
+function loadQuestion(){
 
-            if(score > bestScore){
-                localStorage.setItem("bestScore", score);
+    const q = questions[current];
+
+    questionEl.innerText = q.q;
+
+    buttons.forEach((btn,index)=>{
+
+        btn.innerText = q.a[index];
+
+        btn.onclick = ()=>{
+
+            if(index === q.correct){
+
+                score++;
+
+                document.getElementById("score").innerText =
+                "❤️ " + score + " / 10";
             }
-        }
 
-        if(obs.y > 800){
-            obstacles.splice(index,1);
-            score++;
-        }
+            current++;
+
+            if(current >= questions.length){
+
+                finishGame();
+
+            }else{
+
+                loadQuestion();
+            }
+        };
     });
+}
 
-    particles.forEach((p,index)=>{
+function finishGame(){
 
-        p.x += p.velX;
-        p.y += p.velY;
-        p.alpha -= 0.02;
+    document.getElementById("quizBox").style.display = "none";
 
-        if(p.alpha <= 0){
-            particles.splice(index,1);
-        }
-    });
+    if(score >= 10){
 
-    hearts.forEach((h,index)=>{
+        document.getElementById("finalScreen").style.display = "flex";
+
+    }else{
+
+        questionEl.innerText = "Você acertou " + score + " ❤️";
+    }
+}
+
+function drawBackground(){
+
+    const gradient = ctx.createLinearGradient(0,0,0,canvas.height);
+
+    gradient.addColorStop(0,"#ff7eb3");
+    gradient.addColorStop(1,"#ffd6e8");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    hearts.forEach(h=>{
+
+        ctx.globalAlpha = 0.4;
+
+        ctx.font = h.size + "px Arial";
+
+        ctx.fillText("❤️",h.x,h.y);
 
         h.y -= h.speed;
 
         if(h.y < -50){
-            hearts.splice(index,1);
+
+            h.y = canvas.height + 50;
+            h.x = Math.random()*canvas.width;
         }
     });
+
+    ctx.globalAlpha = 1;
 }
 
+function drawCharacter(){
 
-function drawBackground(){
+    const x = canvas.width/2 - 120;
+    const y = canvas.height/2 - 200;
 
-    const gradient = ctx.createLinearGradient(0,0,0,720);
-
-    gradient.addColorStop(0,"#ff5fa2");
-    gradient.addColorStop(1,"#ffd6e8");
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0,0,1280,720);
-
-    hearts.forEach(h=>{
-
-        ctx.font = h.size + "px Arial";
-        ctx.globalAlpha = 0.3;
-        ctx.fillText("❤️", h.x, h.y);
-        ctx.globalAlpha = 1;
-    });
-}
-
-
-function drawRoad(){
-
-    // Estrada 3D
-    const roadTopWidth = 250;
-    const roadBottomWidth = 900;
-
-    const centerX = canvas.width/2;
-
-    ctx.fillStyle = "#1e1e1e";
-
-    ctx.beginPath();
-    ctx.moveTo(centerX-roadTopWidth/2,0);
-    ctx.lineTo(centerX+roadTopWidth/2,0);
-    ctx.lineTo(centerX+roadBottomWidth/2,720);
-    ctx.lineTo(centerX-roadBottomWidth/2,720);
-    ctx.closePath();
-    ctx.fill();
-
-    // brilho lateral
-    ctx.strokeStyle = "hotpink";
-    ctx.lineWidth = 6;
-
-    ctx.beginPath();
-    ctx.moveTo(centerX-roadTopWidth/2,0);
-    ctx.lineTo(centerX-roadBottomWidth/2,720);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(centerX+roadTopWidth/2,0);
-    ctx.lineTo(centerX+roadBottomWidth/2,720);
-    ctx.stroke();
-
-    // faixas 3D
-    for(let i=0;i<20;i++){
-
-        const y = (i*80 + roadOffset) % 900;
-
-        const scale = y/720;
-
-        const laneWidthTop = 80;
-        const laneWidthBottom = 260;
-
-        const left1 = centerX - laneWidthTop*scale;
-        const left2 = centerX - laneWidthBottom*scale;
-
-        const right1 = centerX + laneWidthTop*scale;
-        const right2 = centerX + laneWidthBottom*scale;
-
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 8;
-
-        ctx.beginPath();
-        ctx.moveTo(left1,y);
-        ctx.lineTo(left2,y+60);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(right1,y);
-        ctx.lineTo(right2,y+60);
-        ctx.stroke();
-    }
-
-    // linhas velocidade
-    ctx.strokeStyle = "rgba(255,255,255,0.08)";
-
-    for(let i=0;i<50;i++){
-
-        const x = Math.random()*1280;
-        const y = Math.random()*720;
-
-        ctx.beginPath();
-        ctx.moveTo(x,y);
-        ctx.lineTo(x,y+20);
-        ctx.stroke();
-    }
-}
-}
-
-
-function drawPlayer(){
-
-    ctx.save();
-
-    // sombra personagem
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    // sombra
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
 
     ctx.beginPath();
     ctx.ellipse(
-        player.x+70,
-        player.y+170,
-        50,
-        18,
+        canvas.width/2,
+        y+320,
+        80,
+        20,
         0,
         0,
         Math.PI*2
     );
     ctx.fill();
 
-    // brilho neon
+    // brilho
     ctx.shadowColor = "hotpink";
-    ctx.shadowBlur = 35;
+    ctx.shadowBlur = 30;
 
-    // inclinação no pulo
-    if(player.jumping){
-        ctx.translate(player.x+70,player.y+90);
-        ctx.rotate(-0.08);
+    ctx.drawImage(
+        playerImg,
+        x,
+        y,
+        240,
+        320
+    );
 
-        ctx.drawImage(
-            playerImg,
-            -70,
-            -90,
-            player.width,
-            player.height
-        );
+    ctx.shadowBlur = 0;
 
-    }else{
-
-        ctx.drawImage(
-            playerImg,
-            player.x,
-            player.y,
-            player.width,
-            player.height
-        );
-    }
-
-    ctx.restore();
-}
-
-
-function drawObstacles(){
-
-    obstacles.forEach(obs=>{
-
-        const perspective = obs.y / 720;
-
-        const scale = 0.5 + perspective;
-
-        const width = obs.width * scale;
-        const height = obs.height * scale;
-
-        ctx.save();
-
-        ctx.shadowColor = "red";
-        ctx.shadowBlur = 40;
-
-        // sombra
-        ctx.fillStyle = "rgba(0,0,0,0.4)";
-        ctx.beginPath();
-        ctx.ellipse(
-            obs.x+60,
-            obs.y+height,
-            width/2,
-            20,
-            0,
-            0,
-            Math.PI*2
-        );
-        ctx.fill();
-
-        // cubo obstáculo
-        const grd = ctx.createLinearGradient(obs.x,obs.y,obs.x+width,obs.y+height);
-
-        grd.addColorStop(0,"#ff1744");
-        grd.addColorStop(1,"#ff6b81");
-
-        ctx.fillStyle = grd;
-
-        ctx.fillRect(
-            obs.x-width/2+60,
-            obs.y,
-            width,
-            height
-        );
-
-        // brilho
-        ctx.fillStyle = "rgba(255,255,255,0.25)";
-
-        ctx.fillRect(
-            obs.x-width/2+70,
-            obs.y+10,
-            width*0.2,
-            height-20
-        );
-
-        ctx.fillStyle = "white";
-        ctx.font = (40*scale) + "px Arial";
-        ctx.fillText(
-            "X",
-            obs.x+35,
-            obs.y+height/1.5
-        );
-
-        ctx.restore();
-    });
-});
-}
-
-
-function drawParticles(){
-
-    particles.forEach(p=>{
-
-        ctx.globalAlpha = p.alpha;
-
-        ctx.fillStyle = "white";
-
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-        ctx.fill();
-
-        ctx.globalAlpha = 1;
-    });
-}
-
-
-function drawUI(){
-
+    // bolha
     ctx.fillStyle = "white";
-    ctx.font = "42px Arial";
 
-    ctx.fillText("Pontos: " + score, 40, 60);
+    ctx.beginPath();
 
-    ctx.fillText("Recorde: " + bestScore, 40, 110);
+    ctx.roundRect(
+        canvas.width/2 - 250,
+        y - 140,
+        500,
+        100,
+        25
+    );
 
-    if(gameOver){
+    ctx.fill();
 
-        ctx.fillStyle = "rgba(0,0,0,0.75)";
-        ctx.fillRect(0,0,1280,720);
+    ctx.fillStyle = "#ff1493";
 
-        ctx.fillStyle = "hotpink";
-        ctx.font = "100px Arial";
-        ctx.fillText("GAME OVER", 260, 240);
+    ctx.font = "28px Arial";
 
-        ctx.font = "50px Arial";
-        ctx.fillText("Pontuação: " + score, 430, 350);
+    ctx.textAlign = "center";
 
-        ctx.fillText("Recarregue para jogar novamente", 220, 450);
-    }
+    ctx.fillText(
+        questions[current]?.q || "Você venceu ❤️",
+        canvas.width/2,
+        y - 80
+    );
 }
 
-
-function draw(){
+function loop(){
 
     drawBackground();
 
-    drawRoad();
+    drawCharacter();
 
-    drawObstacles();
-
-    drawPlayer();
-
-    drawParticles();
-
-    drawUI();
+    requestAnimationFrame(loop);
 }
 
-
-function gameLoop(){
-
-    if(gameStarted && !gameOver){
-        update();
-    }
-
-    draw();
-
-    requestAnimationFrame(gameLoop);
-}
-
-
-document.getElementById("playBtn").onclick = ()=>{
-
-    document.getElementById("menu").style.display = "none";
-
-    gameStarted = true;
-
-    music.play().catch(()=>{});
-};
-
-// fallback caso a imagem demore
-setTimeout(()=>{
-
-    if(!gameStarted){
-        draw();
-    }
-
-},500);
-
-// inicia o jogo corretamente
 playerImg.onload = ()=>{
-    gameLoop();
-};
 
-// fallback se imagem falhar
-playerImg.onerror = ()=>{
+    loop();
 
-    console.log("Imagem não carregou");
-
-    gameLoop();
+    loadQuestion();
 };
 
 </script>
