@@ -3,280 +3,1146 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Love Block Blast ❤️</title>
+<title>LOVE BLOCK BLAST ❤️ ULTRA PRO MAX</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+
 <style>
-/* ===== TODO SEU CSS ORIGINAL INTEIRO (NÃO ALTERADO) ===== */
-*{ margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent; }
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
 
 :root{
-  --pink:#ff4d8d;
-  --pink2:#ff85b3;
-  --purple:#9b59f5;
-  --blue:#4cc9f0;
-  --yellow:#ffd60a;
+--pink:#ff4d8d;
+--pink2:#ff85b3;
+--purple:#9b59f5;
+--blue:#4cc9f0;
+--yellow:#ffd60a;
+--bg:#130226;
 }
 
 body{
-  overflow:hidden;
-  font-family:'Nunito',sans-serif;
-  background:#1a0533;
-  touch-action:none;
-  user-select:none;
+overflow:hidden;
+background:linear-gradient(180deg,#120220,#22053b,#130226);
+font-family:'Nunito',sans-serif;
+touch-action:none;
+user-select:none;
 }
 
-#bgCanvas{ position:fixed;inset:0;z-index:0; }
+/* ===================== BACKGROUND ===================== */
+
+#bg{
+position:fixed;
+inset:0;
+z-index:0;
+}
+
 .aurora{
-  position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(155,89,245,.35) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(255,77,141,.28) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 40% at 50% 90%, rgba(76,201,240,.2) 0%, transparent 60%);
-  animation:aurora 8s ease-in-out infinite alternate;
-}
-@keyframes aurora{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.08)}
-  100%{transform:scale(1.04)}
+position:fixed;
+inset:0;
+pointer-events:none;
+z-index:1;
+
+background:
+radial-gradient(circle at 20% 20%, rgba(255,0,120,.18), transparent 40%),
+radial-gradient(circle at 80% 20%, rgba(0,180,255,.14), transparent 40%),
+radial-gradient(circle at 50% 100%, rgba(170,0,255,.18), transparent 40%);
+
+animation:aurora 8s ease infinite alternate;
 }
 
-/* (TODO RESTO DO CSS COMPLETO FICA IGUAL AO SEU ORIGINAL — NÃO FOI REMOVIDO NEM REDUZIDO) */
+@keyframes aurora{
+0%{transform:scale(1);}
+100%{transform:scale(1.1);}
+}
+
+/* ===================== HUD ===================== */
+
+#hud{
+position:fixed;
+top:0;
+left:0;
+right:0;
+padding:14px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+z-index:50;
+
+background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);
+}
+
+.hudBox{
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(10px);
+border:1px solid rgba(255,255,255,.1);
+
+padding:12px 18px;
+border-radius:20px;
+
+box-shadow:
+0 0 20px rgba(255,0,140,.12),
+inset 0 0 12px rgba(255,255,255,.05);
+}
+
+.hudTitle{
+font-size:11px;
+letter-spacing:2px;
+text-transform:uppercase;
+color:rgba(255,255,255,.5);
+font-weight:800;
+}
+
+.hudValue{
+font-size:28px;
+font-weight:900;
+color:white;
+text-shadow:0 0 12px rgba(255,255,255,.3);
+}
+
+/* ===================== GIRL ===================== */
+
+#girl{
+position:fixed;
+top:0;
+right:-10px;
+width:115px;
+z-index:40;
+pointer-events:none;
+
+filter:
+drop-shadow(0 0 25px rgba(255,0,120,.5))
+drop-shadow(0 0 50px rgba(255,0,180,.3));
+
+animation:floatGirl 4s ease infinite;
+}
+
+@keyframes floatGirl{
+0%{transform:translateY(0px);}
+50%{transform:translateY(8px);}
+100%{transform:translateY(0px);}
+}
+
+/* ===================== SPEECH ===================== */
+
+#speech{
+position:fixed;
+right:108px;
+top:20px;
+z-index:60;
+
+background:white;
+padding:12px 16px;
+border-radius:18px 18px 4px 18px;
+
+font-weight:800;
+font-size:14px;
+color:var(--pink);
+
+opacity:0;
+transform:scale(.8);
+
+transition:.3s;
+}
+
+#speech.show{
+opacity:1;
+transform:scale(1);
+}
+
+/* ===================== GAME ===================== */
+
+#game{
+position:fixed;
+inset:0;
+z-index:10;
+}
+
+/* ===================== MENU ===================== */
+
+#menu{
+position:fixed;
+inset:0;
+z-index:1000;
+
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+
+background:
+radial-gradient(circle at center, rgba(255,0,120,.2), transparent 50%),
+linear-gradient(180deg,#140223,#22053d,#140223);
+}
+
+.menuGirl{
+width:170px;
+
+filter:
+drop-shadow(0 0 25px rgba(255,0,120,.6))
+drop-shadow(0 0 60px rgba(255,0,180,.3));
+
+animation:menuFloat 4s ease infinite;
+}
+
+@keyframes menuFloat{
+0%{transform:translateY(0);}
+50%{transform:translateY(10px);}
+100%{transform:translateY(0);}
+}
+
+.menuTitle{
+margin-top:10px;
+
+font-family:'Pacifico',cursive;
+font-size:42px;
+color:white;
+
+text-shadow:
+0 0 18px rgba(255,0,120,.7),
+0 0 40px rgba(255,0,120,.4);
+}
+
+.menuSub{
+margin-top:10px;
+font-size:14px;
+color:rgba(255,255,255,.6);
+}
+
+.playBtn{
+margin-top:25px;
+
+border:none;
+padding:16px 48px;
+border-radius:50px;
+
+font-size:22px;
+font-weight:900;
+color:white;
+
+background:
+linear-gradient(135deg,var(--pink),var(--purple));
+
+box-shadow:
+0 12px 35px rgba(255,0,140,.45),
+0 0 20px rgba(255,0,180,.3);
+
+cursor:pointer;
+}
+
+.playBtn:active{
+transform:scale(.95);
+}
+
+/* ===================== COMBO ===================== */
+
+#comboText{
+position:fixed;
+left:50%;
+top:40%;
+transform:translate(-50%,-50%) scale(.4);
+
+font-family:'Pacifico',cursive;
+font-size:58px;
+
+color:white;
+
+text-shadow:
+0 0 20px rgba(255,0,120,.8),
+0 0 40px rgba(255,0,180,.6);
+
+opacity:0;
+pointer-events:none;
+z-index:500;
+
+transition:.25s;
+}
+
+#comboText.show{
+opacity:1;
+transform:translate(-50%,-50%) scale(1);
+}
+
+/* ===================== TRAY ===================== */
+
+#tray{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+height:170px;
+
+background:
+linear-gradient(0deg,rgba(0,0,0,.75),transparent);
+
+z-index:20;
+}
+
+/* ===================== GAME OVER ===================== */
+
+#gameOver{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+backdrop-filter:blur(10px);
+
+display:none;
+align-items:center;
+justify-content:center;
+
+z-index:900;
+}
+
+#gameOver.show{
+display:flex;
+}
+
+.goCard{
+width:90%;
+max-width:330px;
+
+padding:30px;
+border-radius:30px;
+
+background:
+linear-gradient(145deg,#240542,#3a0868);
+
+border:1px solid rgba(255,255,255,.08);
+
+text-align:center;
+
+box-shadow:
+0 0 60px rgba(255,0,140,.25),
+0 30px 60px rgba(0,0,0,.5);
+}
+
+.goTitle{
+font-size:36px;
+font-family:'Pacifico',cursive;
+color:white;
+}
+
+.goScore{
+margin-top:15px;
+font-size:58px;
+font-weight:900;
+color:var(--yellow);
+}
+
+.goBtn{
+margin-top:20px;
+
+border:none;
+width:100%;
+padding:15px;
+border-radius:50px;
+
+font-size:18px;
+font-weight:900;
+
+background:
+linear-gradient(135deg,var(--pink),var(--purple));
+
+color:white;
+}
+
 </style>
 </head>
 
 <body>
 
-<canvas id="bgCanvas"></canvas>
+<canvas id="bg"></canvas>
 <div class="aurora"></div>
 
-<!-- MENU (IGUAL AO SEU ORIGINAL) -->
+<!-- MENU -->
 <div id="menu">
-  <div class="menu-glow"></div>
-  <div class="heart-rain" id="heartRain"></div>
-  <img src="julia.png" class="menu-char">
-  <div class="menu-title">Love Block Blast</div>
-  <div class="menu-sub">Feito com amor por Daniel ❤️</div>
-  <div class="menu-best" id="menuBest">🏆 Recorde: 0</div>
-  <button class="menu-btn" id="startBtn">▶ Jogar</button>
+
+<img src="julia.png" class="menuGirl">
+
+<div class="menuTitle">
+Love Block Blast
 </div>
 
-<!-- HUD (IGUAL AO SEU ORIGINAL) -->
+<div class="menuSub">
+Feito com amor por Daniel ❤️
+</div>
+
+<button class="playBtn" id="playBtn">
+▶ Jogar
+</button>
+
+</div>
+
+<!-- HUD -->
 <div id="hud">
-  <div class="hud-score">
-    <div class="hud-label">Pontos</div>
-    <div class="hud-val" id="scoreVal">0</div>
-  </div>
-  <div class="hud-center">
-    <div class="hud-level" id="levelLabel">Nível 1</div>
-    <div class="level-bar-wrap"><div class="level-bar" id="levelBar"></div></div>
-  </div>
-  <div class="hud-combo" id="comboVal">🔥 x0</div>
+
+<div class="hudBox">
+<div class="hudTitle">Pontos</div>
+<div class="hudValue" id="scoreText">0</div>
+</div>
+
+<div class="hudBox">
+<div class="hudTitle">Combo</div>
+<div class="hudValue" id="comboHud">x0</div>
+</div>
+
 </div>
 
 <img src="julia.png" id="girl">
-<div id="speech">Te amo ❤️</div>
-<div id="comboBig">COMBO!</div>
-<div id="levelUp">⭐ NÍVEL UP!</div>
-<div id="blockFlash"></div>
+
+<div id="speech">
+Você é perfeita ❤️
+</div>
+
+<div id="comboText">
+COMBO!
+</div>
+
 <div id="tray"></div>
 
+<!-- GAME OVER -->
+
 <div id="gameOver">
-  <div class="go-card">
-    <span class="go-heart">💔</span>
-    <div class="go-title">Fim de Jogo</div>
-    <div class="go-sub">Não há mais espaço para os blocos...</div>
-    <div class="go-score-value" id="goScore">0</div>
-    <button class="go-btn go-btn-play" id="goRestart">🔄 Jogar Novamente</button>
-    <button class="go-btn go-btn-menu" id="goMenu">🏠 Menu</button>
-  </div>
+
+<div class="goCard">
+
+<div class="goTitle">
+Fim de Jogo
+</div>
+
+<div class="goScore" id="finalScore">
+0
+</div>
+
+<button class="goBtn" onclick="restartGame()">
+Jogar Novamente
+</button>
+
+</div>
+
 </div>
 
 <canvas id="game"></canvas>
 
 <script>
 
-/* ================= SETUP ================= */
+/* ===================== SETUP ===================== */
+
 const canvas=document.getElementById('game');
 const ctx=canvas.getContext('2d');
 
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
 let GRID=8;
-let CELL=40;
-let boardX,boardY=160;
+let CELL=Math.min(innerWidth*.1,48);
 
-function resize(){
-  canvas.width=innerWidth;
-  canvas.height=innerHeight;
-  CELL=Math.min(innerWidth*0.1,46);
-  boardX=(innerWidth-GRID*CELL)/2;
-}
-resize();
-addEventListener('resize',resize);
+let boardX=(innerWidth-(GRID*CELL))/2;
+let boardY=160;
 
-/* ================= STATE ================= */
-let board=[],pieces=[],score=0,gameRunning=false;
-let dragging=null,highlights=[],particles=[];
+/* ===================== STATE ===================== */
 
-function resetBoard(){
-  board=[];
-  for(let y=0;y<GRID;y++){
-    board[y]=[];
-    for(let x=0;x<GRID;x++) board[y][x]=null;
-  }
-}
+let board=[];
+let particles=[];
+let pieces=[];
 
-/* ================= PIECES ================= */
-const SHAPES=[
-[[1]],[[1,1]],[[1],[1]],
-[[1,1,1]],[[1],[1],[1]],
-[[1,1],[1,1]]
+let score=0;
+let combo=0;
+
+let dragging=null;
+let highlights=[];
+
+let gameRunning=false;
+
+/* ===================== COLORS ===================== */
+
+const COLORS=[
+'#ff4d8d',
+'#4cc9f0',
+'#ffd60a',
+'#7bff7b',
+'#9b59f5'
 ];
 
-const COLORS=["#ff4d8d","#4cc9f0","#ffd60a","#9b59f5"];
+/* ===================== SHAPES ===================== */
 
-function rand(a){return a[Math.floor(Math.random()*a.length)]}
+const SHAPES=[
+[[1]],
+[[1,1]],
+[[1],[1]],
+[[1,1,1]],
+[[1],[1],[1]],
+[[1,1],[1,1]],
+[[1,1,1,1]],
+[[1],[1],[1],[1]]
+];
 
-function makePiece(){
-  return {shape:rand(SHAPES),color:rand(COLORS),used:false};
+function rand(a){
+return a[Math.floor(Math.random()*a.length)];
 }
 
-/* ================= FIX DRAG ================= */
+/* ===================== BOARD ===================== */
+
+function resetBoard(){
+
+board=[];
+
+for(let y=0;y<GRID;y++){
+
+board[y]=[];
+
+for(let x=0;x<GRID;x++){
+
+board[y][x]=null;
+
+}
+
+}
+
+}
+
+/* ===================== PIECES ===================== */
+
+function makePiece(){
+
+return{
+shape:rand(SHAPES),
+color:rand(COLORS),
+used:false
+};
+
+}
+
+function createPieces(){
+
+pieces=[
+makePiece(),
+makePiece(),
+makePiece()
+];
+
+}
+
+/* ===================== INPUT ===================== */
+
 function getPos(e){
-  const r=canvas.getBoundingClientRect();
-  const x=e.touches?e.touches[0].clientX:e.clientX;
-  const y=e.touches?e.touches[0].clientY:e.clientY;
-  return {x:x-r.left,y:y-r.top};
+
+const r=canvas.getBoundingClientRect();
+
+const x=e.touches?e.touches[0].clientX:e.clientX;
+const y=e.touches?e.touches[0].clientY:e.clientY;
+
+return{
+x:x-r.left,
+y:y-r.top
+};
+
+}
+
+function pieceX(i){
+
+const slot=innerWidth/3;
+
+return slot*i+slot/2-(pieces[i].shape[0].length*CELL*.7)/2;
+
 }
 
 function startDrag(e){
-  if(!gameRunning) return;
-  const p=getPos(e);
 
-  pieces.forEach((piece,i)=>{
-    if(piece.used) return;
+if(!gameRunning) return;
 
-    const py=canvas.height-120;
+const p=getPos(e);
 
-    if(p.y>py-80){
-      dragging={piece,index:i,x:p.x,y:p.y};
-    }
-  });
+pieces.forEach((piece,i)=>{
+
+if(piece.used) return;
+
+const px=pieceX(i);
+const py=canvas.height-115;
+
+const pw=piece.shape[0].length*CELL*.7;
+const ph=piece.shape.length*CELL*.7;
+
+if(
+p.x>px-25 &&
+p.x<px+pw+25 &&
+p.y>py-25 &&
+p.y<py+ph+25
+){
+
+dragging={
+piece,
+index:i,
+x:p.x,
+y:p.y
+};
+
 }
 
-/* 🔥 FIX 1: mobile drag offset correto */
+});
+
+}
+
 function moveDrag(e){
-  if(!dragging) return;
-  const p=getPos(e);
 
-  dragging.x=p.x;
-  dragging.y=p.y - (e.touches ? CELL*0.45 : 0);
+if(!dragging) return;
 
-  updateHighlight();
+const p=getPos(e);
+
+dragging.x=p.x;
+dragging.y=p.y-(e.touches?CELL*.45:0);
+
+updateHighlight();
+
 }
 
 function endDrag(){
-  if(!dragging) return;
 
-  /* 🔥 FIX 2: encaixe mais preciso */
-  const gx=Math.round((dragging.x-boardX)/CELL);
-  const gy=Math.round((dragging.y-boardY)/CELL);
+if(!dragging) return;
 
-  if(canPlace(dragging.piece,gx,gy)){
-    placePiece(dragging.piece,gx,gy);
-    pieces[dragging.index].used=true;
-  }
+const gx=Math.floor((dragging.x-boardX)/CELL);
+const gy=Math.floor((dragging.y-boardY)/CELL);
 
-  dragging=null;
-  highlights=[];
+if(canPlace(dragging.piece,gx,gy)){
+
+placePiece(dragging.piece,gx,gy);
+
+pieces[dragging.index].used=true;
+
+explode(gx,gy,dragging.piece.color,12);
+
+score+=10;
+
+combo++;
+
+showCombo();
+
+updateUI();
+
+checkPieces();
+
+if(!hasMoves()){
+
+gameOver();
+
 }
 
-/* ================= LOGIC ================= */
+}else{
+
+combo=0;
+
+}
+
+dragging=null;
+highlights=[];
+
+}
+
+/* ===================== LOGIC ===================== */
+
+function updateHighlight(){
+
+highlights=[];
+
+if(!dragging) return;
+
+const gx=Math.floor((dragging.x-boardX)/CELL);
+const gy=Math.floor((dragging.y-boardY)/CELL);
+
+if(canPlace(dragging.piece,gx,gy)){
+
+dragging.piece.shape.forEach((row,y)=>{
+
+row.forEach((v,x)=>{
+
+if(v){
+
+highlights.push({
+x:gx+x,
+y:gy+y
+});
+
+}
+
+});
+
+});
+
+}
+
+}
+
 function canPlace(piece,gx,gy){
-  for(let y=0;y<piece.shape.length;y++){
-    for(let x=0;x<piece.shape[y].length;x++){
-      if(piece.shape[y][x]){
-        let bx=gx+x,by=gy+y;
-        if(bx<0||by<0||bx>=GRID||by>=GRID||board[by][bx]) return false;
-      }
-    }
-  }
-  return true;
+
+for(let y=0;y<piece.shape.length;y++){
+
+for(let x=0;x<piece.shape[y].length;x++){
+
+if(piece.shape[y][x]){
+
+const bx=gx+x;
+const by=gy+y;
+
+if(
+bx<0||
+by<0||
+bx>=GRID||
+by>=GRID||
+board[by][bx]
+){
+
+return false;
+
+}
+
+}
+
+}
+
+}
+
+return true;
+
 }
 
 function placePiece(piece,gx,gy){
-  piece.shape.forEach((row,y)=>{
-    row.forEach((v,x)=>{
-      if(v) board[gy+y][gx+x]=piece.color;
-    });
-  });
+
+piece.shape.forEach((row,y)=>{
+
+row.forEach((v,x)=>{
+
+if(v){
+
+board[gy+y][gx+x]=piece.color;
+
 }
 
-/* ================= FIX PARTICLES ================= */
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+});
 
-  for(let y=0;y<GRID;y++){
-    for(let x=0;x<GRID;x++){
-      ctx.strokeStyle="rgba(255,255,255,.08)";
-      ctx.strokeRect(boardX+x*CELL,boardY+y*CELL,CELL,CELL);
+});
 
-      if(board[y][x]){
-        ctx.fillStyle=board[y][x];
-        ctx.fillRect(boardX+x*CELL,boardY+y*CELL,CELL,CELL);
-      }
-    }
-  }
-
-  /* 🔥 FIX 3: loop seguro de partículas */
-  for(let i=particles.length-1;i>=0;i--){
-    let p=particles[i];
-
-    ctx.globalAlpha=p.a;
-    ctx.fillStyle=p.color;
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.s,0,Math.PI*2);
-    ctx.fill();
-
-    p.x+=p.vx;
-    p.y+=p.vy;
-    p.vy+=0.06;
-    p.a-=0.02;
-
-    if(p.a<=0) particles.splice(i,1);
-  }
-
-  ctx.globalAlpha=1;
-
-  requestAnimationFrame(draw);
 }
 
-/* ================= INIT ================= */
+function checkPieces(){
+
+if(pieces.every(p=>p.used)){
+
+createPieces();
+
+}
+
+}
+
+function hasMoves(){
+
+for(const p of pieces){
+
+if(p.used) continue;
+
+for(let y=0;y<GRID;y++){
+
+for(let x=0;x<GRID;x++){
+
+if(canPlace(p,x,y)){
+
+return true;
+
+}
+
+}
+
+}
+
+}
+
+return false;
+
+}
+
+/* ===================== PARTICLES ===================== */
+
+function explode(gx,gy,color,count){
+
+const cx=boardX+gx*CELL+CELL/2;
+const cy=boardY+gy*CELL+CELL/2;
+
+for(let i=0;i<count;i++){
+
+const a=Math.random()*Math.PI*2;
+const s=Math.random()*4+1;
+
+particles.push({
+
+x:cx,
+y:cy,
+
+vx:Math.cos(a)*s,
+vy:Math.sin(a)*s,
+
+a:1,
+s:Math.random()*6+2,
+color
+
+});
+
+}
+
+}
+
+/* ===================== UI ===================== */
+
+function updateUI(){
+
+document.getElementById('scoreText').textContent=score;
+document.getElementById('comboHud').textContent='x'+combo;
+
+}
+
+function showCombo(){
+
+const el=document.getElementById('comboText');
+
+el.textContent='🔥 COMBO x'+combo;
+
+el.classList.add('show');
+
+setTimeout(()=>{
+
+el.classList.remove('show');
+
+},700);
+
+showSpeech();
+
+}
+
+function showSpeech(){
+
+const speech=document.getElementById('speech');
+
+const msgs=[
+
+'Te amo ❤️',
+'Você é perfeita ❤️',
+'Minha baixinha ❤️',
+'Meu amor ❤️',
+'Você é tudo ❤️'
+
+];
+
+speech.textContent=rand(msgs);
+
+speech.classList.add('show');
+
+setTimeout(()=>{
+
+speech.classList.remove('show');
+
+},2200);
+
+}
+
+/* ===================== GAME OVER ===================== */
+
+function gameOver(){
+
+gameRunning=false;
+
+document.getElementById('finalScore').textContent=score;
+
+document.getElementById('gameOver').classList.add('show');
+
+}
+
+/* ===================== DRAW ===================== */
+
+function rrect(x,y,w,h,r,c,glow){
+
+ctx.save();
+
+ctx.fillStyle=c;
+
+if(glow){
+
+ctx.shadowColor=c;
+ctx.shadowBlur=20;
+
+}
+
+ctx.beginPath();
+
+ctx.moveTo(x+r,y);
+
+ctx.lineTo(x+w-r,y);
+
+ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+
+ctx.lineTo(x+w,y+h-r);
+
+ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+
+ctx.lineTo(x+r,y+h);
+
+ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+
+ctx.lineTo(x,y+r);
+
+ctx.quadraticCurveTo(x,y,x+r,y);
+
+ctx.fill();
+
+ctx.restore();
+
+}
+
+function drawBoard(){
+
+for(let y=0;y<GRID;y++){
+
+for(let x=0;x<GRID;x++){
+
+const px=boardX+x*CELL;
+const py=boardY+y*CELL;
+
+rrect(
+px+2,
+py+2,
+CELL-4,
+CELL-4,
+10,
+'rgba(255,255,255,.06)'
+);
+
+if(board[y][x]){
+
+rrect(
+px+2,
+py+2,
+CELL-4,
+CELL-4,
+10,
+board[y][x],
+true
+);
+
+ctx.save();
+
+ctx.globalAlpha=.25;
+
+rrect(
+px+5,
+py+5,
+CELL-10,
+5,
+4,
+'white'
+);
+
+ctx.restore();
+
+}
+
+}
+
+}
+
+}
+
+function drawPiece(piece,px,py,scale=1){
+
+const size=CELL*scale;
+
+piece.shape.forEach((row,y)=>{
+
+row.forEach((v,x)=>{
+
+if(v){
+
+const dx=px+x*size;
+const dy=py+y*size;
+
+rrect(
+dx,
+dy,
+size-4,
+size-4,
+10,
+piece.color,
+true
+);
+
+ctx.save();
+
+ctx.globalAlpha=.22;
+
+rrect(
+dx+4,
+dy+4,
+size-10,
+4,
+3,
+'white'
+);
+
+ctx.restore();
+
+}
+
+});
+
+});
+
+}
+
+function drawPieces(){
+
+pieces.forEach((piece,i)=>{
+
+if(piece.used) return;
+
+if(dragging&&dragging.index===i) return;
+
+const px=pieceX(i);
+const py=canvas.height-110;
+
+drawPiece(piece,px,py,.7);
+
+});
+
+if(dragging){
+
+drawPiece(
+dragging.piece,
+dragging.x-(CELL/2),
+dragging.y-(CELL/2),
+1
+);
+
+}
+
+}
+
+function drawHighlights(){
+
+highlights.forEach(h=>{
+
+const px=boardX+h.x*CELL;
+const py=boardY+h.y*CELL;
+
+rrect(
+px+2,
+py+2,
+CELL-4,
+CELL-4,
+10,
+'rgba(255,255,255,.18)',
+true
+);
+
+});
+
+}
+
+function drawParticles(){
+
+for(let i=particles.length-1;i>=0;i--){
+
+const p=particles[i];
+
+ctx.save();
+
+ctx.globalAlpha=p.a;
+
+ctx.fillStyle=p.color;
+
+ctx.beginPath();
+
+ctx.arc(p.x,p.y,p.s,0,Math.PI*2);
+
+ctx.fill();
+
+ctx.restore();
+
+p.x+=p.vx;
+p.y+=p.vy;
+
+p.vy+=.06;
+
+p.a-=.02;
+
+if(p.a<=0){
+
+particles.splice(i,1);
+
+}
+
+}
+
+}
+
+/* ===================== LOOP ===================== */
+
+function loop(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+drawBoard();
+drawHighlights();
+drawPieces();
+drawParticles();
+
+requestAnimationFrame(loop);
+
+}
+
+loop();
+
+/* ===================== RESTART ===================== */
+
 function restartGame(){
-  resetBoard();
-  pieces=[makePiece(),makePiece(),makePiece()];
-  score=0;
-  gameRunning=true;
+
+document.getElementById('gameOver').classList.remove('show');
+
+score=0;
+combo=0;
+
+updateUI();
+
+resetBoard();
+
+createPieces();
+
+gameRunning=true;
+
 }
 
-document.getElementById("startBtn").onclick=()=>{
-  document.getElementById("menu").style.display="none";
-  restartGame();
+/* ===================== EVENTS ===================== */
+
+canvas.addEventListener('mousedown',startDrag);
+canvas.addEventListener('mousemove',moveDrag);
+canvas.addEventListener('mouseup',endDrag);
+
+canvas.addEventListener('touchstart',startDrag,{passive:false});
+canvas.addEventListener('touchmove',moveDrag,{passive:false});
+canvas.addEventListener('touchend',endDrag);
+
+/* ===================== START ===================== */
+
+document.getElementById('playBtn').onclick=()=>{
+
+document.getElementById('menu').style.display='none';
+
+restartGame();
+
 };
 
-document.getElementById("goRestart").onclick=restartGame;
-document.getElementById("goMenu").onclick=()=>location.reload();
-
-/* EVENTS */
-canvas.addEventListener("mousedown",startDrag);
-canvas.addEventListener("mousemove",moveDrag);
-canvas.addEventListener("mouseup",endDrag);
-canvas.addEventListener("touchstart",startDrag,{passive:false});
-canvas.addEventListener("touchmove",moveDrag,{passive:false});
-canvas.addEventListener("touchend",endDrag);
-
-/* START */
 resetBoard();
-pieces=[makePiece(),makePiece(),makePiece()];
-draw();
+createPieces();
+updateUI();
 
 </script>
 </body>
