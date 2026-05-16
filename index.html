@@ -35,7 +35,7 @@ body{
 
     background:linear-gradient(
         180deg,
-        #5f72ff,
+        #5d72ff,
         #91a5ff
     );
 
@@ -52,27 +52,33 @@ canvas{
     height:100%;
 }
 
+/* personagem */
+
 #girl{
 
     position:absolute;
 
-    right:10px;
-    top:20px;
+    right:5px;
+    top:-10px;
 
-    width:130px;
+    width:155px;
 
     z-index:20;
 
+    pointer-events:none;
+
     filter:
-    drop-shadow(0 0 15px rgba(255,105,180,0.5));
+    drop-shadow(0 0 18px rgba(255,105,180,0.45));
 }
+
+/* fala */
 
 #speech{
 
     position:absolute;
 
-    top:150px;
-    right:10px;
+    top:145px;
+    right:12px;
 
     background:white;
 
@@ -92,7 +98,7 @@ canvas{
 
     transform:translateY(10px);
 
-    transition:0.3s;
+    transition:0.25s;
 
     z-index:30;
 }
@@ -104,12 +110,14 @@ canvas{
     transform:translateY(0);
 }
 
+/* score */
+
 #score{
 
     position:absolute;
 
-    top:20px;
-    left:18px;
+    top:18px;
+    left:16px;
 
     color:#ffd54f;
 
@@ -118,6 +126,8 @@ canvas{
     font-weight:bold;
 
     z-index:20;
+
+    text-shadow:0 0 10px rgba(0,0,0,0.35);
 }
 
 #combo{
@@ -125,7 +135,7 @@ canvas{
     position:absolute;
 
     top:58px;
-    left:18px;
+    left:16px;
 
     color:white;
 
@@ -134,6 +144,8 @@ canvas{
     font-weight:bold;
 
     z-index:20;
+
+    text-shadow:0 0 10px rgba(0,0,0,0.35);
 }
 
 </style>
@@ -184,14 +196,53 @@ const GRID = 8;
 
 let CELL =
 Math.min(
-    window.innerWidth*0.095,
-    50
+window.innerWidth*0.094,
+49
 );
 
 let boardX =
 (window.innerWidth-(CELL*GRID))/2;
 
-let boardY = 170;
+let boardY = 175;
+
+/* score */
+
+let score = 0;
+
+let combo = 0;
+
+/* destaque */
+
+let highlightCells = [];
+
+/* cores */
+
+const colors = [
+
+"#ff4d6d",
+"#4cc9f0",
+"#ffd60a",
+"#7bff7b"
+
+];
+
+/* frases */
+
+const phrases = [
+
+"Te amo ❤️",
+"Minha baixinha ❤️",
+"Morena do Daniel ❤️",
+"Você é perfeita ❤️",
+"Meu amor ❤️",
+"Você é minha paz ❤️",
+"Meu coração é seu ❤️",
+"Você me faz feliz ❤️",
+"Linda demais ❤️"
+
+];
+
+/* tabuleiro */
 
 const board = [];
 
@@ -205,43 +256,7 @@ for(let y=0;y<GRID;y++){
     }
 }
 
-const colors = [
-
-"#ff4d6d",
-"#4cc9f0",
-"#ffd60a",
-"#7bff7b"
-
-];
-
-const phrases = [
-
-"Te amo ❤️",
-"Minha baixinha ❤️",
-"Morena do Daniel ❤️",
-"Você é perfeita ❤️",
-"Meu amor ❤️",
-"Linda demais ❤️",
-"Você me faz feliz ❤️",
-"Meu coração é seu ❤️",
-"Você é minha paz ❤️"
-
-];
-
-let score = 0;
-
-let combo = 0;
-
-let highlightCells = [];
-
-function randomColor(){
-
-    return colors[
-        Math.floor(
-            Math.random()*colors.length
-        )
-    ];
-}
+/* peças grandes iguais block blast */
 
 const SHAPES = [
 
@@ -261,6 +276,10 @@ const SHAPES = [
 
 [[1],[1],[1],[1]],
 
+[[1,1,1,1,1]],
+
+[[1],[1],[1],[1],[1]],
+
 [[1,1,1],[0,1,0]],
 
 [[1,0],[1,1]],
@@ -271,9 +290,52 @@ const SHAPES = [
 
 [[1,1,1],[1,0,0]],
 
-[[1,1,1],[0,0,1]]
+[[1,1,1],[0,0,1]],
+
+/* GRANDES */
+
+[[1,1,1],
+ [1,1,1]],
+
+[[1,1,1],
+ [1,1,1],
+ [1,1,1]],
+
+[[1,1,1,1],
+ [1,1,1,1]],
+
+[[1,1,1],
+ [1,0,0],
+ [1,0,0]],
+
+[[1,1,1],
+ [0,0,1],
+ [0,0,1]],
+
+[[1,0,0],
+ [1,1,1],
+ [1,0,0]],
+
+[[0,0,1],
+ [1,1,1],
+ [0,0,1]],
+
+[[1,1,1],
+ [1,1,0]],
+
+[[1,1,1],
+ [0,1,1]]
 
 ];
+
+function randomColor(){
+
+    return colors[
+        Math.floor(
+            Math.random()*colors.length
+        )
+    ];
+}
 
 function randomPiece(){
 
@@ -308,6 +370,8 @@ generatePieces();
 
 let dragging = null;
 
+/* posição toque */
+
 function getPos(e){
 
     const rect =
@@ -325,19 +389,22 @@ function getPos(e){
     };
 }
 
+/* iniciar drag */
+
 function startDrag(e){
 
-    const pos = getPos(e);
+    const pos =
+    getPos(e);
 
     pieces.forEach((piece,index)=>{
 
         if(piece.used) return;
 
         const px =
-        35 + index*(CELL*2.5);
+        22 + index*(CELL*2.6);
 
         const py =
-        canvas.height-140;
+        canvas.height-145;
 
         if(
 
@@ -360,6 +427,8 @@ function startDrag(e){
     });
 }
 
+/* mover */
+
 function moveDrag(e){
 
     if(dragging){
@@ -373,6 +442,8 @@ function moveDrag(e){
         updateHighlight();
     }
 }
+
+/* soltar */
 
 function endDrag(){
 
@@ -396,9 +467,9 @@ function endDrag(){
             )
         ){
 
-            // efeito sugando
+            /* efeito sugando */
 
-            animatePlace(
+            placePiece(
                 dragging.piece,
                 gx,
                 gy
@@ -433,10 +504,68 @@ function endDrag(){
     }
 }
 
-function animatePlace(piece,gx,gy){
+/* gerar novas */
 
-    placePiece(piece,gx,gy);
+function checkPieces(){
+
+    let allUsed = true;
+
+    pieces.forEach(p=>{
+
+        if(!p.used){
+
+            allUsed = false;
+        }
+    });
+
+    if(allUsed){
+
+        pieces =
+        generatePieces();
+    }
+
+    checkGameOver();
 }
+
+/* game over */
+
+function checkGameOver(){
+
+    for(let piece of pieces){
+
+        if(piece.used) continue;
+
+        for(let y=0;y<GRID;y++){
+
+            for(let x=0;x<GRID;x++){
+
+                if(
+                    canPlace(
+                        piece,
+                        x,
+                        y
+                    )
+                ){
+
+                    return;
+                }
+            }
+        }
+    }
+
+    setTimeout(()=>{
+
+        alert(
+        "Fim de jogo ❤️\nPontuação: "
+        + score
+        );
+
+        location.reload();
+
+    },350);
+}
+
+/* destaque */
 
 function updateHighlight(){
 
@@ -485,114 +614,7 @@ function updateHighlight(){
     }
 }
 
-function showPhrase(){
-
-    const speech =
-    document.getElementById("speech");
-
-    speech.innerText =
-
-    phrases[
-        Math.floor(
-            Math.random()*phrases.length
-        )
-    ];
-
-    speech.classList.add("show");
-
-    setTimeout(()=>{
-
-        speech.classList.remove("show");
-
-    },2200);
-}
-
-function checkPieces(){
-
-    let allUsed = true;
-
-    pieces.forEach(p=>{
-
-        if(!p.used){
-
-            allUsed = false;
-        }
-    });
-
-    if(allUsed){
-
-        pieces =
-        generatePieces();
-    }
-
-    checkGameOver();
-}
-
-function checkGameOver(){
-
-    for(let piece of pieces){
-
-        if(piece.used) continue;
-
-        for(let y=0;y<GRID;y++){
-
-            for(let x=0;x<GRID;x++){
-
-                if(
-                    canPlace(
-                        piece,
-                        x,
-                        y
-                    )
-                ){
-
-                    return;
-                }
-            }
-        }
-    }
-
-    setTimeout(()=>{
-
-        alert(
-        "Fim de jogo ❤️\nPontuação: "
-        + score
-        );
-
-        location.reload();
-
-    },300);
-}
-
-canvas.addEventListener(
-"touchstart",
-startDrag
-);
-
-canvas.addEventListener(
-"touchmove",
-moveDrag
-);
-
-canvas.addEventListener(
-"touchend",
-endDrag
-);
-
-canvas.addEventListener(
-"mousedown",
-startDrag
-);
-
-canvas.addEventListener(
-"mousemove",
-moveDrag
-);
-
-canvas.addEventListener(
-"mouseup",
-endDrag
-);
+/* validar */
 
 function canPlace(piece,gx,gy){
 
@@ -632,6 +654,8 @@ function canPlace(piece,gx,gy){
     return true;
 }
 
+/* colocar */
+
 function placePiece(piece,gx,gy){
 
     let points = 0;
@@ -656,6 +680,8 @@ function placePiece(piece,gx,gy){
 
     score += points;
 }
+
+/* limpar linhas */
 
 function clearLines(){
 
@@ -682,7 +708,8 @@ function clearLines(){
                 board[y][x] = null;
             }
 
-            score += 80 + (combo*20);
+            score +=
+            80 + (combo*20);
         }
     }
 
@@ -707,12 +734,39 @@ function clearLines(){
                 board[y][x] = null;
             }
 
-            score += 80 + (combo*20);
+            score +=
+            80 + (combo*20);
         }
     }
 
     return cleared;
 }
+
+/* frase */
+
+function showPhrase(){
+
+    const speech =
+    document.getElementById("speech");
+
+    speech.innerText =
+
+    phrases[
+        Math.floor(
+            Math.random()*phrases.length
+        )
+    ];
+
+    speech.classList.add("show");
+
+    setTimeout(()=>{
+
+        speech.classList.remove("show");
+
+    },2200);
+}
+
+/* ui */
 
 function updateUI(){
 
@@ -726,6 +780,8 @@ function updateUI(){
     ).innerText =
     "🔥 Combo x" + combo;
 }
+
+/* desenhar ret */
 
 function roundRect(
 x,y,w,h,r,color
@@ -764,6 +820,8 @@ x,y,w,h,r,color
     ctx.fill();
 }
 
+/* tabuleiro */
+
 function drawBoard(){
 
     for(let y=0;y<GRID;y++){
@@ -776,16 +834,18 @@ function drawBoard(){
             const py =
             boardY + y*CELL;
 
+            /* fundo */
+
             roundRect(
                 px,
                 py,
                 CELL-4,
                 CELL-4,
                 10,
-                "#1c2766"
+                "#1f2b6d"
             );
 
-            // destaque
+            /* destaque */
 
             const highlighted =
             highlightCells.find(
@@ -795,14 +855,16 @@ function drawBoard(){
             if(highlighted){
 
                 roundRect(
-                    px+2,
-                    py+2,
-                    CELL-8,
-                    CELL-8,
+                    px+1,
+                    py+1,
+                    CELL-6,
+                    CELL-6,
                     10,
                     "rgba(255,255,255,0.35)"
                 );
             }
+
+            /* bloco */
 
             if(board[y][x]){
 
@@ -815,18 +877,22 @@ function drawBoard(){
                     board[y][x]
                 );
 
+                /* brilho */
+
                 roundRect(
-                    px+7,
-                    py+7,
+                    px+6,
+                    py+6,
                     CELL-20,
-                    10,
-                    6,
-                    "rgba(255,255,255,0.25)"
+                    9,
+                    5,
+                    "rgba(255,255,255,0.28)"
                 );
             }
         }
     }
 }
+
+/* desenhar peça */
 
 function drawPiece(
 piece,
@@ -860,17 +926,19 @@ py
                 );
 
                 roundRect(
-                    dx+5,
-                    dy+5,
+                    dx+6,
+                    dy+6,
                     CELL-20,
-                    10,
-                    6,
-                    "rgba(255,255,255,0.25)"
+                    9,
+                    5,
+                    "rgba(255,255,255,0.28)"
                 );
             }
         }
     }
 }
+
+/* desenhar peças */
 
 function drawPieces(){
 
@@ -889,9 +957,9 @@ function drawPieces(){
 
             piece,
 
-            35 + index*(CELL*2.5),
+            22 + index*(CELL*2.6),
 
-            canvas.height-140
+            canvas.height-145
         );
     });
 
@@ -902,7 +970,7 @@ function drawPieces(){
         ctx.shadowColor =
         "rgba(0,0,0,0.35)";
 
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = 18;
 
         drawPiece(
 
@@ -916,6 +984,38 @@ function drawPieces(){
         ctx.restore();
     }
 }
+
+/* loop */
+
+canvas.addEventListener(
+"touchstart",
+startDrag
+);
+
+canvas.addEventListener(
+"touchmove",
+moveDrag
+);
+
+canvas.addEventListener(
+"touchend",
+endDrag
+);
+
+canvas.addEventListener(
+"mousedown",
+startDrag
+);
+
+canvas.addEventListener(
+"mousemove",
+moveDrag
+);
+
+canvas.addEventListener(
+"mouseup",
+endDrag
+);
 
 function loop(){
 
